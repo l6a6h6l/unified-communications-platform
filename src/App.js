@@ -1488,117 +1488,607 @@ function HerramientaIncidentes({ onBack }) {
 // HERRAMIENTA 2: COMUNICADOS OFICIALES
 // ===============================
 
+// ============================================
+// ESTILOS CENTRALIZADOS
+// ============================================
+
+const styles = {
+  // Estilos generales
+  container: {
+    minHeight: '100vh',
+    backgroundColor: '#f5f5f5',
+    padding: '20px'
+  },
+  wrapper: {
+    maxWidth: '1400px',
+    margin: '0 auto'
+  },
+  mainTitle: {
+    textAlign: 'center',
+    marginBottom: '40px',
+    color: '#0f2844',
+    fontSize: '32px',
+    fontWeight: 'bold'
+  },
+  flexContainer: {
+    display: 'flex',
+    gap: '40px',
+    alignItems: 'flex-start'
+  },
+  
+  // Panel de edición
+  editorPanel: {
+    flex: '0 0 450px',
+    backgroundColor: 'white',
+    padding: '30px',
+    borderRadius: '8px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+  },
+  sectionTitle: {
+    marginBottom: '20px',
+    color: '#333'
+  },
+  infoBox: {
+    backgroundColor: '#e3f2fd',
+    padding: '10px',
+    borderRadius: '4px',
+    marginBottom: '20px',
+    fontSize: '13px',
+    color: '#1565c0'
+  },
+  warningBox: {
+    backgroundColor: '#fff3cd',
+    padding: '10px',
+    borderRadius: '4px',
+    marginTop: '20px',
+    fontSize: '12px',
+    color: '#856404',
+    border: '1px solid #ffeeba'
+  },
+  
+  // Campos del formulario
+  fieldGroup: {
+    marginBottom: '20px'
+  },
+  label: {
+    display: 'block',
+    marginBottom: '5px',
+    fontWeight: 'bold'
+  },
+  input: {
+    width: '100%',
+    padding: '8px',
+    fontSize: '14px',
+    border: '1px solid #ddd',
+    borderRadius: '4px'
+  },
+  select: {
+    width: '100%',
+    padding: '8px',
+    fontSize: '14px',
+    border: '1px solid #ddd',
+    borderRadius: '4px',
+    cursor: 'pointer'
+  },
+  textarea: {
+    width: '100%',
+    padding: '8px',
+    fontSize: '14px',
+    border: '1px solid #ddd',
+    borderRadius: '4px',
+    minHeight: '80px',
+    resize: 'vertical'
+  },
+  textareaLarge: {
+    width: '100%',
+    padding: '8px',
+    fontSize: '14px',
+    border: '1px solid #ddd',
+    borderRadius: '4px',
+    minHeight: '120px',
+    resize: 'vertical'
+  },
+  dateTimeContainer: {
+    display: 'flex',
+    gap: '10px'
+  },
+  dateTimeInput: {
+    flex: 1,
+    padding: '8px',
+    fontSize: '14px',
+    border: '1px solid #ddd',
+    borderRadius: '4px'
+  },
+  preview: {
+    marginTop: '5px',
+    fontSize: '12px',
+    color: '#666'
+  },
+  autoCalculated: {
+    marginTop: '5px',
+    fontSize: '12px',
+    color: '#1976d2'
+  },
+  
+  // Botones
+  buttonContainer: {
+    display: 'flex',
+    gap: '10px',
+    marginTop: '30px'
+  },
+  primaryButton: {
+    flex: 1,
+    padding: '12px',
+    backgroundColor: '#1976d2',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    transition: 'background-color 0.2s'
+  },
+  secondaryButton: {
+    padding: '12px 20px',
+    backgroundColor: '#666',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    fontSize: '16px',
+    cursor: 'pointer',
+    transition: 'background-color 0.2s'
+  },
+  exampleButton: {
+    width: '100%',
+    marginTop: '10px',
+    padding: '10px',
+    backgroundColor: '#f0f0f0',
+    color: '#333',
+    border: '1px solid #ddd',
+    borderRadius: '4px',
+    fontSize: '14px',
+    cursor: 'pointer',
+    transition: 'background-color 0.2s'
+  },
+  copyButton: {
+    padding: '10px 20px',
+    backgroundColor: '#ff9800',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    fontSize: '14px',
+    cursor: 'pointer',
+    transition: 'background-color 0.2s'
+  },
+  
+  // Vista previa
+  previewContainer: {
+    flex: 1
+  },
+  previewHeader: {
+    marginBottom: '20px',
+    display: 'flex',
+    gap: '10px',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  previewTitle: {
+    margin: 0,
+    color: '#0f2844'
+  },
+  previewWrapper: {
+    backgroundColor: '#f5f5f5',
+    padding: '20px',
+    borderRadius: '8px'
+  },
+  emptyState: {
+    backgroundColor: 'white',
+    padding: '60px',
+    borderRadius: '8px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    textAlign: 'center',
+    color: '#999'
+  },
+  
+  // Comunicado
+  comunicado: {
+    backgroundColor: 'white',
+    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+    minWidth: '900px',
+    overflow: 'visible',
+    position: 'relative'
+  },
+  comunicadoHeader: {
+    backgroundColor: '#1b3a5e',
+    position: 'relative',
+    padding: '50px 80px',
+    overflow: 'visible'
+  },
+  comunicadoLines: {
+    position: 'absolute',
+    left: '80px',
+    right: '80px'
+  },
+  comunicadoLine: {
+    height: '2px',
+    backgroundColor: 'white',
+    marginBottom: '4px'
+  },
+  comunicadoHeaderContent: {
+    position: 'relative',
+    marginTop: '20px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  comunicadoTitle: {
+    color: 'white',
+    fontSize: '38px',
+    fontWeight: '700',
+    letterSpacing: '2.5px',
+    fontFamily: 'Arial, sans-serif',
+    margin: 0
+  },
+  comunicadoSubtitle: {
+    color: 'white',
+    fontSize: '26px',
+    fontWeight: '400',
+    letterSpacing: '2px',
+    fontFamily: 'Arial, sans-serif',
+    margin: 0,
+    marginTop: '10px'
+  },
+  comunicadoLogoContainer: {
+    backgroundColor: 'transparent',
+    padding: '0',
+    marginRight: '0',
+    flexShrink: 0
+  },
+  comunicadoContent: {
+    padding: '50px 80px'
+  },
+  comunicadoIntro: {
+    fontSize: '18px',
+    marginBottom: '40px',
+    fontFamily: 'Arial, sans-serif'
+  },
+  comunicadoFieldContainer: {
+    marginBottom: '40px'
+  },
+  comunicadoField: {
+    display: 'flex',
+    marginBottom: '12px',
+    border: '1px solid #ddd'
+  },
+  comunicadoFieldLabel: {
+    backgroundColor: '#1976d2',
+    color: 'white',
+    padding: '24px',
+    fontSize: '20px',
+    fontWeight: 'bold',
+    width: '320px',
+    textAlign: 'center',
+    fontFamily: 'Arial, sans-serif',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    whiteSpace: 'pre-line',
+    lineHeight: '1.2'
+  },
+  comunicadoFieldValue: {
+    padding: '24px',
+    backgroundColor: '#f9f9f9',
+    flex: 1,
+    fontSize: '18px',
+    fontFamily: 'Arial, sans-serif',
+    whiteSpace: 'pre-wrap'
+  },
+  comunicadoFieldValueWhite: {
+    padding: '24px',
+    backgroundColor: 'white',
+    flex: 1,
+    fontSize: '18px',
+    fontFamily: 'Arial, sans-serif'
+  },
+  comunicadoMonitoreo: {
+    fontSize: '18px',
+    textAlign: 'center',
+    marginBottom: '40px',
+    fontFamily: 'Arial, sans-serif',
+    whiteSpace: 'pre-line'
+  },
+  comunicadoFooter: {
+    backgroundColor: '#f0f0f0',
+    padding: '24px',
+    borderRadius: '10px',
+    textAlign: 'center',
+    fontSize: '18px',
+    fontFamily: 'Arial, sans-serif'
+  },
+  
+  // Selector de idioma
+  languageSelector: {
+    marginBottom: '15px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#e8f4f8',
+    padding: '10px 15px',
+    borderRadius: '4px',
+    border: '1px solid #b3e0f2'
+  },
+  languageLabel: {
+    fontSize: '14px',
+    color: '#0d47a1',
+    fontWeight: '500'
+  },
+  languageControls: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px'
+  },
+  languageSelect: {
+    padding: '6px 12px',
+    fontSize: '14px',
+    border: '1px solid #1976d2',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    backgroundColor: 'white',
+    color: '#1976d2',
+    fontWeight: '500'
+  },
+  translatingText: {
+    fontSize: '12px',
+    color: '#1976d2'
+  }
+};
+
 // Componente Logo Diners
 const LogoDiners = () => (
-  <div style={{ 
-    display: 'block',
-    backgroundColor: '#ffffff',
-    padding: '10px 18px',
-    verticalAlign: 'middle'
+  <div style={{
+    width: '75px',
+    height: '60px',
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
   }}>
-    <span style={{
-      fontFamily: 'Arial, sans-serif',
-      fontWeight: 'bold',
-      fontSize: '20px',
-      color: '#0066B3',
-      letterSpacing: '1px'
+    {/* Logo Diners simplificado */}
+    <div style={{
+      width: '75px',
+      height: '58px',
+      position: 'relative',
+      borderRadius: '29px',
+      overflow: 'hidden',
+      backgroundColor: 'white',
+      border: '1px solid #ddd'
     }}>
-      DINERS
-    </span>
-    <span style={{
-      fontFamily: 'Arial, sans-serif',
-      fontWeight: 'normal',
-      fontSize: '18px',
-      color: '#0066B3',
-      marginLeft: '6px'
+      {/* Mitad izquierda - azul claro */}
+      <div style={{
+        position: 'absolute',
+        left: '0',
+        top: '0',
+        width: '50%',
+        height: '100%',
+        backgroundColor: '#4db8db'
+      }}></div>
+      {/* Mitad derecha - azul oscuro */}
+      <div style={{
+        position: 'absolute',
+        right: '0',
+        top: '0',
+        width: '50%',
+        height: '100%',
+        backgroundColor: '#004976'
+      }}></div>
+      {/* Óvalo central blanco */}
+      <div style={{
+        position: 'absolute',
+        top: '10%',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '16px',
+        height: '80%',
+        backgroundColor: 'white',
+        borderRadius: '8px'
+      }}></div>
+    </div>
+  </div>
+);
+
+// Componente Logo INTERDIN para fondo azul
+const LogoInterdinWhite = () => {
+  return (
+    <div style={{ 
+      display: 'flex',
+      alignItems: 'center',
+      height: '55px',
+      border: '3px solid white',
+      borderRadius: '6px',
+      overflow: 'hidden',
+      backgroundColor: 'white'
     }}>
-      CLUB
-    </span>
+      <div style={{ 
+        backgroundColor: '#1b3a5e',
+        color: '#ffffff',
+        padding: '0 20px',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center'
+      }}>
+        <span style={{ 
+          fontWeight: 'bold',
+          fontSize: '26px',
+          fontFamily: 'Arial, sans-serif',
+          letterSpacing: '3px'
+        }}>
+          INTER
+        </span>
+      </div>
+      <div style={{ 
+        backgroundColor: '#e60000',
+        color: '#ffffff',
+        padding: '0 20px',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center'
+      }}>
+        <span style={{ 
+          fontWeight: 'bold',
+          fontSize: '26px',
+          fontFamily: 'Arial, sans-serif',
+          letterSpacing: '3px'
+        }}>
+          DIN
+        </span>
+      </div>
+    </div>
+  );
+};
+
+// Componente Logo Diners para fondo azul
+const LogoDinersWhite = () => (
+  <div style={{
+    width: '70px',
+    height: '56px',
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  }}>
+    {/* Logo Diners simplificado */}
+    <div style={{
+      width: '70px',
+      height: '54px',
+      position: 'relative',
+      borderRadius: '27px',
+      overflow: 'hidden',
+      backgroundColor: 'white',
+      border: '2px solid white'
+    }}>
+      {/* Mitad izquierda - azul claro */}
+      <div style={{
+        position: 'absolute',
+        left: '0',
+        top: '0',
+        width: '50%',
+        height: '100%',
+        backgroundColor: '#4db8db'
+      }}></div>
+      {/* Mitad derecha - azul oscuro */}
+      <div style={{
+        position: 'absolute',
+        right: '0',
+        top: '0',
+        width: '50%',
+        height: '100%',
+        backgroundColor: '#004976'
+      }}></div>
+      {/* Óvalo central blanco */}
+      <div style={{
+        position: 'absolute',
+        top: '10%',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '15px',
+        height: '80%',
+        backgroundColor: 'white',
+        borderRadius: '7.5px'
+      }}></div>
+    </div>
   </div>
 );
 
 // Componente Logo INTERDIN
-const LogoInterdin = () => (
-  <div style={{ 
-    display: 'block',
-    backgroundColor: '#ffffff',
-    padding: '10px 18px',
-    verticalAlign: 'middle'
-  }}>
-    <span style={{ 
-      color: '#1a3a52',
-      fontWeight: 'bold',
-      fontSize: '22px',
-      fontFamily: 'Arial, sans-serif',
-      letterSpacing: '1px'
-    }}>
-      INTER
-    </span>
-    <span style={{ 
-      backgroundColor: '#e60000',
-      color: '#ffffff',
-      padding: '4px 10px',
-      fontSize: '20px',
-      fontWeight: 'bold',
-      fontFamily: 'Arial, sans-serif',
-      marginLeft: '3px',
-      letterSpacing: '1px'
-    }}>
-      DIN
-    </span>
-  </div>
-);
+const LogoInterdin = () => {
+  const [imagenError, setImagenError] = React.useState(false);
+  
+  if (imagenError) {
+    return (
+      <div style={{ 
+        display: 'flex',
+        alignItems: 'center',
+        height: '65px',
+        border: '3px solid #e0e0e0',
+        borderRadius: '6px',
+        overflow: 'hidden'
+      }}>
+        <div style={{ 
+          backgroundColor: '#1b3a5e',
+          color: '#ffffff',
+          padding: '0 25px',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center'
+        }}>
+          <span style={{ 
+            fontWeight: 'bold',
+            fontSize: '30px',
+            fontFamily: 'Arial, sans-serif',
+            letterSpacing: '3px'
+          }}>
+            INTER
+          </span>
+        </div>
+        <div style={{ 
+          backgroundColor: '#e60000',
+          color: '#ffffff',
+          padding: '0 25px',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center'
+        }}>
+          <span style={{ 
+            fontWeight: 'bold',
+            fontSize: '30px',
+            fontFamily: 'Arial, sans-serif',
+            letterSpacing: '3px'
+          }}>
+            DIN
+          </span>
+        </div>
+      </div>
+    );
+  }
+  
+  return (
+    <img 
+      src="https://dl.dropboxusercontent.com/scl/fi/68ijsay36q6arzipbihqs/interdin.png?rlkey=l3q4yzutnit6b6s3sq7hi93k2&dl=1"
+      alt="INTERDIN"
+      style={{
+        height: '60px',
+        width: 'auto',
+        display: 'block'
+      }}
+      onError={() => setImagenError(true)}
+    />
+  );
+};
 
 // Componente Selector de Idioma
 const SelectorIdioma = ({ idioma, onChange, cargando }) => {
   const textos = TRADUCCIONES[IDIOMAS.ES].formulario;
   
   return (
-    <div style={{
-      marginBottom: '15px',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      backgroundColor: '#e8f4f8',
-      padding: '10px 15px',
-      borderRadius: '4px',
-      border: '1px solid #b3e0f2'
-    }}>
-      <span style={{
-        fontSize: '14px',
-        color: '#0d47a1',
-        fontWeight: '500'
-      }}>
+    <div className="no-print" style={styles.languageSelector}>
+      <span style={styles.languageLabel}>
         {textos.idiomaComunicado}
       </span>
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px'
-      }}>
+      <div style={styles.languageControls}>
         <select
           value={idioma}
           onChange={(e) => onChange(e.target.value)}
           disabled={cargando}
           style={{
-            padding: '6px 12px',
-            fontSize: '14px',
-            border: '1px solid #1976d2',
-            borderRadius: '4px',
-            cursor: cargando ? 'wait' : 'pointer',
-            backgroundColor: 'white',
-            color: '#1976d2',
-            fontWeight: '500'
+            ...styles.languageSelect,
+            cursor: cargando ? 'wait' : 'pointer'
           }}
         >
           <option value={IDIOMAS.ES}>🇪🇨 Español</option>
           <option value={IDIOMAS.EN}>🇺🇸 English</option>
         </select>
         {cargando && (
-          <span style={{
-            fontSize: '12px',
-            color: '#1976d2'
-          }}>{textos.traduciendo}</span>
+          <span style={styles.translatingText}>{textos.traduciendo}</span>
         )}
       </div>
     </div>
@@ -1690,39 +2180,95 @@ const VistaPreviaComunicado = ({ datos }) => {
         width: '900px',
         margin: '0 auto'
       }}>
-        {/* Header simplificado */}
+        {/* Header con diseño corporativo */}
         <div style={{ 
-          backgroundColor: '#1a3a52',
-          padding: '50px 80px',
-          color: 'white'
+          backgroundColor: '#0d2844',
+          position: 'relative'
         }}>
-          <div style={{ borderTop: '2px solid white', borderBottom: '2px solid white', padding: '40px 0' }}>
-            <div style={{ display: 'table', width: '100%' }}>
-              <div style={{ display: 'table-cell', verticalAlign: 'middle' }}>
+          {/* Contenedor principal con líneas externas */}
+          <div style={{
+            borderTop: '3px solid white',
+            borderBottom: '3px solid white',
+            height: '150px',
+            position: 'relative'
+          }}>
+            {/* Líneas horizontales continuas que cruzan todo el ancho */}
+            <div style={{
+              position: 'absolute',
+              top: '20px',
+              left: '0',
+              right: '0',
+              height: '2px',
+              backgroundColor: 'white',
+              zIndex: 2
+            }}></div>
+            <div style={{
+              position: 'absolute',
+              bottom: '20px',
+              left: '0',
+              right: '0',
+              height: '2px',
+              backgroundColor: 'white',
+              zIndex: 2
+            }}></div>
+            
+            {/* Contenedor flex */}
+            <div style={{
+              display: 'flex',
+              height: '100%',
+              position: 'relative'
+            }}>
+              {/* Sección de texto */}
+              <div style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                padding: '35px 50px'
+              }}>
                 <h1 style={{ 
-                  fontSize: '38px',
+                  fontSize: '42px',
                   fontWeight: '700',
-                  letterSpacing: '2.5px',
-                  fontFamily: 'Arial, sans-serif',
-                  margin: '0'
-                }}>{textos.titulo}</h1>
-                <h2 style={{ 
-                  fontSize: '26px',
-                  fontWeight: '400',
                   letterSpacing: '2px',
                   fontFamily: 'Arial, sans-serif',
-                  margin: '10px 0 0 0'
+                  margin: '0',
+                  color: 'white',
+                  lineHeight: '1.1',
+                  textAlign: 'center'
+                }}>{textos.titulo}</h1>
+                <h2 style={{ 
+                  fontSize: '32px',
+                  fontWeight: '400',
+                  letterSpacing: '1px',
+                  fontFamily: 'Arial, sans-serif',
+                  margin: '6px 0 0 0',
+                  color: 'white',
+                  lineHeight: '1.1',
+                  textAlign: 'center'
                 }}>{textos.empresa}</h2>
               </div>
-              <div style={{ display: 'table-cell', verticalAlign: 'middle', textAlign: 'right', width: '200px' }}>
-                <div style={{ 
-                  backgroundColor: 'white',
-                  display: 'inline-block',
-                  padding: '15px 25px',
-                  fontFamily: 'Arial, sans-serif'
-                }}>
-                  {datos.empresa === EMPRESAS.INTERDIN ? <LogoInterdin /> : <LogoDiners />}
-                </div>
+              
+              {/* Línea vertical divisoria que solo va entre las líneas horizontales */}
+              <div style={{
+                width: '2px',
+                backgroundColor: 'white',
+                position: 'absolute',
+                top: '22px', // Empieza justo después de la línea horizontal superior
+                bottom: '22px', // Termina justo antes de la línea horizontal inferior
+                right: '280px', // Posicionada entre las secciones
+                zIndex: 1
+              }}></div>
+              
+              {/* Sección del logo */}
+              <div style={{
+                width: '280px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '35px 40px'
+              }}>
+                {datos.empresa === EMPRESAS.INTERDIN ? <LogoInterdinWhite /> : <LogoDinersWhite />}
               </div>
             </div>
           </div>
@@ -1738,7 +2284,17 @@ const VistaPreviaComunicado = ({ datos }) => {
           <div style={{ marginBottom: '40px' }}>
             {/* Actividad */}
             <div style={{ display: 'table', width: '100%', marginBottom: '12px', border: '1px solid #ddd' }}>
-              <div style={{ display: 'table-cell', backgroundColor: '#1976d2', color: 'white', padding: '24px', fontSize: '20px', fontWeight: 'bold', width: '320px', textAlign: 'center', fontFamily: 'Arial, sans-serif' }}>
+              <div style={{ 
+                display: 'table-cell', 
+                backgroundColor: '#1976d2', 
+                color: 'white', 
+                padding: '24px', 
+                fontSize: '20px', 
+                fontWeight: 'bold', 
+                width: '320px', 
+                textAlign: 'center', 
+                fontFamily: 'Arial, sans-serif' 
+              }}>
                 {textos.labels.actividad}
               </div>
               <div style={{ display: 'table-cell', padding: '24px', backgroundColor: '#f9f9f9', fontSize: '18px', fontFamily: 'Arial, sans-serif' }}>
@@ -1748,9 +2304,22 @@ const VistaPreviaComunicado = ({ datos }) => {
             
             {/* Fecha y Hora */}
             <div style={{ display: 'table', width: '100%', marginBottom: '12px', border: '1px solid #ddd' }}>
-              <div style={{ display: 'table-cell', backgroundColor: '#1976d2', color: 'white', padding: '24px', fontSize: '20px', fontWeight: 'bold', width: '320px', textAlign: 'center', fontFamily: 'Arial, sans-serif', verticalAlign: 'middle' }}>
-                <div>{textos.labels.fechaHora.split('\n')[0]}</div>
-                <div>{textos.labels.fechaHora.split('\n')[1]}</div>
+              <div style={{ 
+                display: 'table-cell', 
+                backgroundColor: '#1976d2', 
+                color: 'white', 
+                padding: '24px', 
+                fontSize: '20px', 
+                fontWeight: 'bold', 
+                width: '320px', 
+                textAlign: 'center', 
+                fontFamily: 'Arial, sans-serif', 
+                verticalAlign: 'middle',
+                lineHeight: '1.3'
+              }}>
+                {textos.labels.fechaHora.split('\n').map((line, i) => (
+                  <div key={i}>{line}</div>
+                ))}
               </div>
               <div style={{ display: 'table-cell', padding: '24px', backgroundColor: 'white', fontSize: '18px', fontFamily: 'Arial, sans-serif' }}>
                 <div style={{ marginBottom: '8px' }}>
@@ -1764,9 +2333,22 @@ const VistaPreviaComunicado = ({ datos }) => {
             
             {/* Servicio Afectado */}
             <div style={{ display: 'table', width: '100%', marginBottom: '12px', border: '1px solid #ddd' }}>
-              <div style={{ display: 'table-cell', backgroundColor: '#1976d2', color: 'white', padding: '24px', fontSize: '20px', fontWeight: 'bold', width: '320px', textAlign: 'center', fontFamily: 'Arial, sans-serif', verticalAlign: 'middle' }}>
-                <div>{textos.labels.servicio.split('\n')[0]}</div>
-                <div>{textos.labels.servicio.split('\n')[1]}</div>
+              <div style={{ 
+                display: 'table-cell', 
+                backgroundColor: '#1976d2', 
+                color: 'white', 
+                padding: '24px', 
+                fontSize: '20px', 
+                fontWeight: 'bold', 
+                width: '320px', 
+                textAlign: 'center', 
+                fontFamily: 'Arial, sans-serif', 
+                verticalAlign: 'middle',
+                lineHeight: '1.3'
+              }}>
+                {textos.labels.servicio.split('\n').map((line, i) => (
+                  <div key={i}>{line}</div>
+                ))}
               </div>
               <div style={{ display: 'table-cell', padding: '24px', backgroundColor: '#f9f9f9', fontSize: '18px', fontFamily: 'Arial, sans-serif', whiteSpace: 'pre-wrap' }}>
                 {textos.servicioAfectado}
@@ -1775,9 +2357,22 @@ const VistaPreviaComunicado = ({ datos }) => {
             
             {/* Periodo */}
             <div style={{ display: 'table', width: '100%', border: '1px solid #ddd' }}>
-              <div style={{ display: 'table-cell', backgroundColor: '#1976d2', color: 'white', padding: '24px', fontSize: '20px', fontWeight: 'bold', width: '320px', textAlign: 'center', fontFamily: 'Arial, sans-serif', verticalAlign: 'middle' }}>
-                <div>{textos.labels.periodo.split('\n')[0]}</div>
-                <div>{textos.labels.periodo.split('\n')[1]}</div>
+              <div style={{ 
+                display: 'table-cell', 
+                backgroundColor: '#1976d2', 
+                color: 'white', 
+                padding: '24px', 
+                fontSize: '20px', 
+                fontWeight: 'bold', 
+                width: '320px', 
+                textAlign: 'center', 
+                fontFamily: 'Arial, sans-serif', 
+                verticalAlign: 'middle',
+                lineHeight: '1.3'
+              }}>
+                {textos.labels.periodo.split('\n').map((line, i) => (
+                  <div key={i}>{line}</div>
+                ))}
               </div>
               <div style={{ display: 'table-cell', padding: '24px', backgroundColor: 'white', fontSize: '18px', fontFamily: 'Arial, sans-serif' }}>
                 {textos.periodoAfectacion}
@@ -1802,6 +2397,15 @@ const VistaPreviaComunicado = ({ datos }) => {
   );
 };
 
+// Componente Campo de Formulario
+const CampoFormulario = ({ label, children, style = {} }) => (
+  <div style={{ ...styles.fieldGroup, ...style }}>
+    <label style={styles.label}>{label}</label>
+    {children}
+  </div>
+);
+
+// Componente Principal de la Herramienta 2
 function HerramientaComunicados({ onBack }) {
   const [formData, setFormData] = React.useState({
     empresa: EMPRESAS.INTERDIN,
@@ -1895,7 +2499,11 @@ function HerramientaComunicados({ onBack }) {
     setCopiando(true);
     
     try {
+      // Simulamos el proceso de copia
       await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // En un entorno real, aquí se usaría html2canvas
+      // Por ahora, mostramos el mensaje de éxito
       alert(textos.alertas.copiaExitosa);
     } catch (error) {
       console.error('Error:', error);
@@ -1917,280 +2525,124 @@ function HerramientaComunicados({ onBack }) {
   );
   
   return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: '#f5f5f5',
-      padding: '20px'
-    }}>
-      <div style={{
-        maxWidth: '1400px',
-        margin: '0 auto'
-      }}>
-        <h1 style={{
-          textAlign: 'center',
-          marginBottom: '40px',
-          color: '#1a3a52',
-          fontSize: '32px',
-          fontWeight: 'bold'
-        }}>{textos.titulo}</h1>
+    <div style={styles.container}>
+      <div style={styles.wrapper}>
+        <h1 style={styles.mainTitle}>{textos.titulo}</h1>
         
-        <div style={{
-          display: 'flex',
-          gap: '40px',
-          alignItems: 'flex-start'
-        }}>
+        <div style={styles.flexContainer}>
           {/* Panel de edición */}
-          <div style={{
-            flex: '0 0 450px',
-            backgroundColor: 'white',
-            padding: '30px',
-            borderRadius: '8px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-          }}>
-            <h2 style={{
-              marginBottom: '20px',
-              color: '#333'
-            }}>{textos.datosDelComunicado}</h2>
+          <div style={styles.editorPanel}>
+            <h2 style={styles.sectionTitle}>{textos.datosDelComunicado}</h2>
             
-            <div style={{
-              backgroundColor: '#e3f2fd',
-              padding: '10px',
-              borderRadius: '4px',
-              marginBottom: '20px',
-              fontSize: '13px',
-              color: '#1565c0'
-            }}>
+            <div style={styles.infoBox}>
               {textos.infoTimezone}
             </div>
             
-            <div style={{marginBottom: '20px'}}>
-              <label style={{
-                display: 'block',
-                marginBottom: '5px',
-                fontWeight: 'bold'
-              }}>{textos.empresa}</label>
+            <CampoFormulario label={textos.empresa}>
               <select 
                 value={formData.empresa} 
                 onChange={(e) => updateField('empresa', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '8px',
-                  fontSize: '14px',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  cursor: 'pointer'
-                }}
+                style={styles.select}
               >
                 <option value={EMPRESAS.INTERDIN}>{EMPRESAS.INTERDIN}</option>
                 <option value={EMPRESAS.DINERS}>{EMPRESAS.DINERS}</option>
               </select>
-            </div>
+            </CampoFormulario>
             
-            <div style={{marginBottom: '20px'}}>
-              <label style={{
-                display: 'block',
-                marginBottom: '5px',
-                fontWeight: 'bold'
-              }}>{textos.actividad}</label>
+            <CampoFormulario label={textos.actividad}>
               <textarea
                 value={formData.actividad}
                 onChange={(e) => updateField('actividad', e.target.value)}
                 placeholder={textos.placeholders.actividad}
-                style={{
-                  width: '100%',
-                  padding: '8px',
-                  fontSize: '14px',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  minHeight: '80px',
-                  resize: 'vertical'
-                }}
+                style={styles.textarea}
               />
-            </div>
+            </CampoFormulario>
             
-            <div style={{marginBottom: '20px'}}>
-              <label style={{
-                display: 'block',
-                marginBottom: '5px',
-                fontWeight: 'bold'
-              }}>{textos.fechaHoraInicio}</label>
-              <div style={{
-                display: 'flex',
-                gap: '10px'
-              }}>
+            <CampoFormulario label={textos.fechaHoraInicio}>
+              <div style={styles.dateTimeContainer}>
                 <input
                   type="date"
                   value={formData.fechaInicioDate}
                   onChange={(e) => updateField('fechaInicioDate', e.target.value)}
-                  style={{
-                    flex: 1,
-                    padding: '8px',
-                    fontSize: '14px',
-                    border: '1px solid #ddd',
-                    borderRadius: '4px'
-                  }}
+                  style={styles.dateTimeInput}
                 />
                 <input
                   type="time"
                   value={formData.horaInicio}
                   onChange={(e) => updateField('horaInicio', e.target.value)}
-                  style={{
-                    flex: 1,
-                    padding: '8px',
-                    fontSize: '14px',
-                    border: '1px solid #ddd',
-                    borderRadius: '4px'
-                  }}
+                  style={styles.dateTimeInput}
                 />
               </div>
               {fechaInicio && (
-                <div style={{
-                  marginTop: '5px',
-                  fontSize: '12px',
-                  color: '#666'
-                }}>
+                <div style={styles.preview}>
                   {textos.vistaPrevia} {fechaInicio}
                 </div>
               )}
-            </div>
+            </CampoFormulario>
             
-            <div style={{marginBottom: '20px'}}>
-              <label style={{
-                display: 'block',
-                marginBottom: '5px',
-                fontWeight: 'bold'
-              }}>{textos.fechaHoraFin}</label>
-              <div style={{
-                display: 'flex',
-                gap: '10px'
-              }}>
+            <CampoFormulario label={textos.fechaHoraFin}>
+              <div style={styles.dateTimeContainer}>
                 <input
                   type="date"
                   value={formData.fechaFinDate}
                   onChange={(e) => updateField('fechaFinDate', e.target.value)}
-                  style={{
-                    flex: 1,
-                    padding: '8px',
-                    fontSize: '14px',
-                    border: '1px solid #ddd',
-                    borderRadius: '4px'
-                  }}
+                  style={styles.dateTimeInput}
                 />
                 <input
                   type="time"
                   value={formData.horaFin}
                   onChange={(e) => updateField('horaFin', e.target.value)}
-                  style={{
-                    flex: 1,
-                    padding: '8px',
-                    fontSize: '14px',
-                    border: '1px solid #ddd',
-                    borderRadius: '4px'
-                  }}
+                  style={styles.dateTimeInput}
                 />
               </div>
               {fechaFin && (
-                <div style={{
-                  marginTop: '5px',
-                  fontSize: '12px',
-                  color: '#666'
-                }}>
+                <div style={styles.preview}>
                   {textos.vistaPrevia} {fechaFin}
                 </div>
               )}
-            </div>
+            </CampoFormulario>
             
-            <div style={{marginBottom: '20px'}}>
-              <label style={{
-                display: 'block',
-                marginBottom: '5px',
-                fontWeight: 'bold'
-              }}>{textos.servicioAfectado}</label>
+            <CampoFormulario label={textos.servicioAfectado}>
               <textarea
                 value={formData.servicioAfectado}
                 onChange={(e) => updateField('servicioAfectado', e.target.value)}
                 placeholder={textos.placeholders.servicioAfectado}
-                style={{
-                  width: '100%',
-                  padding: '8px',
-                  fontSize: '14px',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  minHeight: '120px',
-                  resize: 'vertical'
-                }}
+                style={styles.textareaLarge}
               />
-            </div>
+            </CampoFormulario>
             
-            <div style={{marginBottom: '20px'}}>
-              <label style={{
-                display: 'block',
-                marginBottom: '5px',
-                fontWeight: 'bold'
-              }}>{textos.periodoAfectacion}</label>
+            <CampoFormulario label={textos.periodoAfectacion}>
               <input
                 type="text"
                 value={formData.periodoAfectacion}
                 onChange={(e) => updateField('periodoAfectacion', e.target.value)}
                 placeholder={textos.placeholders.periodoAfectacion}
                 style={{
-                  width: '100%',
-                  padding: '8px',
-                  fontSize: '14px',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
+                  ...styles.input,
                   backgroundColor: formData.periodoAfectacion && formData.fechaInicioDate && formData.fechaFinDate ? '#f0f7ff' : 'white'
                 }}
               />
               {formData.fechaInicioDate && formData.horaInicio && formData.fechaFinDate && formData.horaFin && (
-                <div style={{
-                  marginTop: '5px',
-                  fontSize: '12px',
-                  color: '#1976d2'
-                }}>
+                <div style={styles.autoCalculated}>
                   {textos.calculadoAutomaticamente}
                 </div>
               )}
-            </div>
+            </CampoFormulario>
             
-            <div style={{
-              display: 'flex',
-              gap: '10px',
-              marginTop: '30px'
-            }}>
+            <div style={styles.buttonContainer}>
               <button
                 onClick={generarComunicado}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  backgroundColor: '#1976d2',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  fontSize: '16px',
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
                 onMouseEnter={(e) => e.target.style.backgroundColor = '#1565c0'}
                 onMouseLeave={(e) => e.target.style.backgroundColor = '#1976d2'}
+                style={styles.primaryButton}
               >
                 {textos.generarComunicado}
               </button>
               <button
                 onClick={limpiarFormulario}
-                style={{
-                  padding: '12px 20px',
-                  backgroundColor: '#666',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  fontSize: '16px',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
                 onMouseEnter={(e) => e.target.style.backgroundColor = '#555'}
                 onMouseLeave={(e) => e.target.style.backgroundColor = '#666'}
+                style={styles.secondaryButton}
               >
                 {textos.limpiar}
               </button>
@@ -2198,24 +2650,13 @@ function HerramientaComunicados({ onBack }) {
             
             <button
               onClick={cargarEjemplo}
-              style={{
-                width: '100%',
-                marginTop: '10px',
-                padding: '10px',
-                backgroundColor: '#f0f0f0',
-                color: '#333',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '14px',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s'
-              }}
               onMouseEnter={(e) => e.target.style.backgroundColor = '#e0e0e0'}
               onMouseLeave={(e) => e.target.style.backgroundColor = '#f0f0f0'}
+              style={styles.exampleButton}
             >
               {textos.cargarEjemplo}
             </button>
-
+            
             <button
               onClick={onBack}
               style={{
@@ -2236,71 +2677,37 @@ function HerramientaComunicados({ onBack }) {
               ← Volver al Menú
             </button>
             
-            <div style={{
-              backgroundColor: '#fff3cd',
-              padding: '10px',
-              borderRadius: '4px',
-              marginTop: '20px',
-              fontSize: '12px',
-              color: '#856404',
-              border: '1px solid #ffeeba'
-            }}>
-              💡 Traducción automática: Una vez generado el comunicado, podrás traducirlo al inglés usando el selector de idioma.
+            <div style={styles.warningBox}>
+              {textos.infoTraduccion}
             </div>
           </div>
           
           {/* Panel de vista previa */}
-          <div style={{flex: 1}}>
+          <div style={styles.previewContainer}>
             {mostrarVista ? (
               <>
-                <div style={{
-                  marginBottom: '20px',
-                  display: 'flex',
-                  gap: '10px',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}>
-                  <h3 style={{
-                    margin: 0,
-                    color: '#1a3a52'
-                  }}>{textos.vistaPreviaComunicado}</h3>
+                <div className="no-print" style={styles.previewHeader}>
+                  <h3 style={styles.previewTitle}>{textos.vistaPreviaComunicado}</h3>
                   <button
                     onClick={copiarImagen}
                     disabled={copiando}
-                    style={{
-                      padding: '10px 20px',
-                      backgroundColor: '#ff9800',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      fontSize: '14px',
-                      cursor: copiando ? 'wait' : 'pointer',
-                      transition: 'background-color 0.2s',
-                      opacity: copiando ? 0.7 : 1
-                    }}
                     onMouseEnter={(e) => !copiando && (e.target.style.backgroundColor = '#fb8c00')}
                     onMouseLeave={(e) => !copiando && (e.target.style.backgroundColor = '#ff9800')}
+                    style={{
+                      ...styles.copyButton,
+                      cursor: copiando ? 'wait' : 'pointer',
+                      opacity: copiando ? 0.7 : 1
+                    }}
                   >
                     {copiando ? textos.procesando : textos.copiar}
                   </button>
                 </div>
-                <div style={{
-                  backgroundColor: '#f5f5f5',
-                  padding: '20px',
-                  borderRadius: '8px'
-                }}>
+                <div style={styles.previewWrapper}>
                   <VistaPreviaComunicado datos={formData} />
                 </div>
               </>
             ) : (
-              <div style={{
-                backgroundColor: 'white',
-                padding: '60px',
-                borderRadius: '8px',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                textAlign: 'center',
-                color: '#999'
-              }}>
+              <div style={styles.emptyState}>
                 <h3>{textos.vistaPreviaComunicado}</h3>
                 <p>{textos.completeCampos}</p>
               </div>
