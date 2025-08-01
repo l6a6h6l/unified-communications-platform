@@ -634,7 +634,7 @@ function HerramientaIncidentes({ onBack }) {
     descripcion: "",
     impacto: "",
     resolucion: "",
-    nota: "Describir la nota si aplica",
+    nota: "",
     empresa: "Diners Club",
     referencia: "MSG" + Math.random().toString(36).substring(2, 8) + "_" + Date.now().toString().slice(-8)
   });
@@ -732,8 +732,10 @@ function HerramientaIncidentes({ onBack }) {
       
       const horas = Math.floor(diferenciaEnMinutos / 60);
       const minutos = diferenciaEnMinutos % 60;
+      const segundos = 0; // Como no tenemos segundos en los inputs, asumimos 0
       
-      return `${horas}h ${minutos}m`;
+      // Formato HH:MM:SS
+      return `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
     } catch (error) {
       return "";
     }
@@ -750,7 +752,7 @@ function HerramientaIncidentes({ onBack }) {
       descripcion: "",
       impacto: "",
       resolucion: "",
-      nota: "Describir la nota si aplica",
+      nota: "",
       empresa: "Diners Club",
       referencia: "MSG" + Math.random().toString(36).substring(2, 8) + "_" + Date.now().toString().slice(-8)
     });
@@ -968,7 +970,7 @@ function HerramientaIncidentes({ onBack }) {
   
   if (showForm) {
     return (
-      <div style={{maxWidth: "800px", margin: "0 auto", backgroundColor: "white", borderRadius: "8px", boxShadow: "0 2px 10px rgba(0,0,0,0.1)", overflow: "hidden"}}>
+      <div style={{maxWidth: "900px", margin: "0 auto", backgroundColor: "white", borderRadius: "8px", boxShadow: "0 2px 10px rgba(0,0,0,0.1)", overflow: "hidden"}}>
         <div style={{
           background: "linear-gradient(135deg, #1e3a5f 0%, #2c4b73 30%, #3d5a7a 70%, #4a6b85 100%)",
           color: "white", 
@@ -994,7 +996,7 @@ function HerramientaIncidentes({ onBack }) {
               textShadow: "0 2px 8px rgba(0,0,0,0.4)",
               letterSpacing: "0.5px"
             }}>
-              Crear Comunicado de {formData.tipoNotificacion.includes("INCIDENTE") ? "Incidente" : "Evento"}
+              Crear Comunicado de Incidente
             </h1>
             <p style={{
               margin: "8px 0 0 0",
@@ -1008,7 +1010,7 @@ function HerramientaIncidentes({ onBack }) {
         </div>
 
         <div style={{padding: "20px"}}>
-          <div style={{display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "15px", marginBottom: "15px"}}>
+          <div style={{display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "15px", marginBottom: "15px"}}>
             <div>
               <label style={{display: "block", marginBottom: "5px", fontWeight: "bold", fontSize: "14px"}}>
                 Estado
@@ -1048,20 +1050,6 @@ function HerramientaIncidentes({ onBack }) {
                 <option value="P4">P4</option>
               </select>
             </div>
-            
-            <div>
-              <label style={{display: "block", marginBottom: "5px", fontWeight: "bold", fontSize: "14px"}}>
-                Tipo de Notificación
-              </label>
-              <select 
-                value={formData.tipoNotificacion}
-                onChange={(e) => handleInputChange("tipoNotificacion", e.target.value)}
-                style={{width: "100%", padding: "8px", border: "1px solid #ccc", borderRadius: "4px", fontSize: "14px"}}
-              >
-                <option value="GESTIÓN INCIDENTE">GESTIÓN INCIDENTE</option>
-                <option value="GESTIÓN EVENTO">GESTIÓN EVENTO</option>
-              </select>
-            </div>
 
             <div>
               <label style={{display: "block", marginBottom: "5px", fontWeight: "bold", fontSize: "14px"}}>
@@ -1077,6 +1065,20 @@ function HerramientaIncidentes({ onBack }) {
               </select>
             </div>
           </div>
+          
+          {formData.estado === "En Revisión" && (
+            <div style={{
+              backgroundColor: "#fff3cd",
+              border: "1px solid #ffeaa7",
+              padding: "10px",
+              borderRadius: "4px",
+              marginBottom: "15px",
+              fontSize: "13px",
+              color: "#856404"
+            }}>
+              <strong>💡 Nota:</strong> En estado "En Revisión", solo se muestra la hora de inicio del incidente. La hora fin y duración se calcularán automáticamente cuando cambie el estado a "Avance" o "Recuperado".
+            </div>
+          )}
           
           {mostrarCalculadoraPrioridad && (
             <div style={{border: "1px solid #b3d1ff", backgroundColor: "#e6f0ff", borderRadius: "8px", padding: "15px", marginBottom: "15px"}}>
@@ -1214,31 +1216,40 @@ function HerramientaIncidentes({ onBack }) {
             
             <div>
               <label style={{display: "block", marginBottom: "5px", fontWeight: "bold", fontSize: "14px"}}>
-                Hora Fin (HH:MM)
+                Hora Fin (HH:MM) {formData.estado === "En Revisión" && <span style={{color: "#ff9800", fontWeight: "normal", fontSize: "12px"}}>(Solo cuando se resuelva)</span>}
               </label>
               <input 
                 type="time"
+                value={formData.horaFin}
                 onChange={(e) => handleInputChange("horaFin", e.target.value)}
-                style={{width: "100%", padding: "8px", border: "1px solid #ccc", borderRadius: "4px", fontSize: "14px"}}
+                style={{
+                  width: "100%", 
+                  padding: "8px", 
+                  border: "1px solid #ccc", 
+                  borderRadius: "4px", 
+                  fontSize: "14px",
+                  backgroundColor: formData.estado === "En Revisión" ? "#f9f9f9" : "white",
+                  opacity: formData.estado === "En Revisión" ? 0.7 : 1
+                }}
               />
             </div>
           </div>
           
-          {formData.horaInicio && formData.horaFin && (
+          {formData.horaInicio && formData.horaFin && formData.estado !== "En Revisión" && (
             <div style={{backgroundColor: "#e6f0ff", border: "1px solid #b3d1ff", padding: "10px", borderRadius: "4px", marginBottom: "15px", color: "#0066B2"}}>
-              <span style={{fontWeight: "bold"}}>Duración estimada: </span>
+              <span style={{fontWeight: "bold"}}>Duración: </span>
               {calcularDuracion()}
             </div>
           )}
           
           <div style={{marginBottom: "15px"}}>
             <label style={{display: "block", marginBottom: "5px", fontWeight: "bold", fontSize: "14px"}}>
-              Descripción del Problema
+              Descripción
             </label>
             <textarea 
               value={formData.descripcion}
               onChange={(e) => handleInputChange("descripcion", e.target.value)}
-              placeholder="Aquí describir brevemente el incidente o evento técnico incluyendo detalles relevantes"
+              placeholder="Describa brevemente el incidente o evento técnico"
               style={{
                 width: "100%", 
                 padding: "8px", 
@@ -1256,12 +1267,12 @@ function HerramientaIncidentes({ onBack }) {
           
           <div style={{marginBottom: "15px"}}>
             <label style={{display: "block", marginBottom: "5px", fontWeight: "bold", fontSize: "14px"}}>
-              Impacto
+              Servicios afectados
             </label>
             <textarea 
               value={formData.impacto}
               onChange={(e) => handleInputChange("impacto", e.target.value)}
-              placeholder="Detallar las consecuencias para los usuarios/clientes y posibles plazos de resolución"
+              placeholder="Liste los servicios afectados (uno por línea)"
               style={{
                 width: "100%", 
                 padding: "8px", 
@@ -1279,12 +1290,12 @@ function HerramientaIncidentes({ onBack }) {
           
           <div style={{marginBottom: "15px"}}>
             <label style={{display: "block", marginBottom: "5px", fontWeight: "bold", fontSize: "14px"}}>
-              Resolución
+              Acciones de recuperación
             </label>
             <textarea 
               value={formData.resolucion}
               onChange={(e) => handleInputChange("resolucion", e.target.value)}
-              placeholder="Explicar las acciones tomadas para resolver el problema y su estado actual"
+              placeholder="Detalle las acciones tomadas para resolver el incidente"
               style={{
                 width: "100%", 
                 padding: "8px", 
@@ -1302,12 +1313,12 @@ function HerramientaIncidentes({ onBack }) {
           
           <div style={{marginBottom: "15px"}}>
             <label style={{display: "block", marginBottom: "5px", fontWeight: "bold", fontSize: "14px"}}>
-              Texto de Nota
+              Causa raíz preliminar
             </label>
             <textarea 
               value={formData.nota}
               onChange={(e) => handleInputChange("nota", e.target.value)}
-              placeholder="Describir la nota si aplica - información adicional relevante"
+              placeholder="Indique la causa raíz preliminar del incidente"
               style={{
                 width: "100%", 
                 padding: "8px", 
@@ -1352,111 +1363,159 @@ function HerramientaIncidentes({ onBack }) {
 
   // Vista previa
   const duracion = calcularDuracion();
-  let problemaTexto = formData.descripcion || "No se ha proporcionado información del problema";
   
-  if (formData.fecha && formData.horaInicio && formData.horaFin) {
-    problemaTexto = `Desde ${formData.horaInicio} hasta ${formData.horaFin}`;
-    if (duracion) problemaTexto += ` (${duracion})`;
-    problemaTexto += ` el ${formData.fecha}, ${formData.descripcion}`;
-  }
+  // Formatear la descripción del problema según el nuevo formato
+  let descripcionTexto = formData.descripcion || "No se ha proporcionado información del problema";
+  
+  // Convertir servicios afectados en lista con bullets si contiene saltos de línea
+  const serviciosAfectados = formData.impacto ? formData.impacto.split('\n').filter(line => line.trim()) : [];
 
   return (
     <div>
-      <div style={{maxWidth: "800px", margin: "0 auto", backgroundColor: "white", borderRadius: "8px", boxShadow: "0 2px 10px rgba(0,0,0,0.1)", overflow: "hidden"}} data-communication="preview">
+      <div style={{maxWidth: "900px", margin: "0 auto", backgroundColor: "white", boxShadow: "0 2px 10px rgba(0,0,0,0.1)", overflow: "hidden"}} data-communication="preview">
+        {/* Header */}
         <div style={{
-          background: "linear-gradient(135deg, #1e3a5f 0%, #2c4b73 30%, #3d5a7a 70%, #4a6b85 100%)",
+          backgroundColor: "#0066cc",
           color: "white", 
-          padding: "20px 30px",
-          position: "relative",
-          overflow: "hidden",
-          boxShadow: "0 4px 15px rgba(0,0,0,0.2)"
+          padding: "15px 30px",
+          textAlign: "center"
         }}>
-          <div style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(255,255,255,0.03)",
-            backdropFilter: "blur(5px)"
-          }}></div>
-          <div style={{position: "relative", zIndex: 1, textAlign: "center"}}>
-            <h1 style={{
-              margin: 0, 
-              fontSize: "36px", 
-              fontWeight: "700",
-              textShadow: "0 2px 8px rgba(0,0,0,0.4)",
-              letterSpacing: "0.5px"
-            }}>
-              {formData.tipoNotificacion}
-            </h1>
-          </div>
+          <h1 style={{
+            margin: 0, 
+            fontSize: "32px", 
+            fontWeight: "600",
+            letterSpacing: "1px",
+            fontFamily: "Arial, sans-serif"
+          }}>
+            GESTIÓN DE INCIDENTES
+          </h1>
         </div>
         
-        <div style={{padding: "20px"}}>
-          <div style={{border: "1px solid #ccc", padding: "20px", marginBottom: "15px", position: "relative"}}>
-            <div style={{position: "absolute", top: "20px", right: "20px", display: "flex", gap: "15px"}}>
-              <svg width="110" height="40" style={{borderRadius: "12px", overflow: "visible"}}>
-                <rect x="0" y="0" width="110" height="40" rx="12" ry="12" 
-                      fill="#f8f9fa" stroke="#6c757d" strokeWidth="2"/>
-                <circle cx="20" cy="20" r="8" fill={getColorEstado()}/>
-                <text x="36" y="25" fontSize="14" fontWeight="600" fill="#495057" fontFamily="system-ui, -apple-system, sans-serif">
-                  {formData.estado === "En Revisión" ? "Revisión" : formData.estado}
-                </text>
-              </svg>
-              
-              <svg width="110" height="40" style={{borderRadius: "12px", overflow: "visible"}}>
-                <rect x="0" y="0" width="110" height="40" rx="12" ry="12" 
-                      fill="#f0f8ff" stroke="#0066B2" strokeWidth="2"/>
-                <text x="20" y="26" fontSize="16" fontWeight="700" fill="#0066B2" fontFamily="system-ui, -apple-system, sans-serif">
-                  {formData.prioridad}
-                </text>
-                <text x="46" y="25" fontSize="14" fontWeight="600" fill="#0066B2" fontFamily="system-ui, -apple-system, sans-serif">
-                  Prioridad
-                </text>
-              </svg>
+        {/* Contenido */}
+        <div style={{padding: "30px 40px", position: "relative"}}>
+          {/* Badges de estado y prioridad */}
+          <div style={{position: "absolute", top: "30px", right: "40px", display: "flex", gap: "15px"}}>
+            <div style={{
+              backgroundColor: "#f0f0f0",
+              color: "#333",
+              padding: "8px 20px",
+              borderRadius: "20px",
+              fontSize: "14px",
+              fontWeight: "600",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              border: "1px solid #e0e0e0"
+            }}>
+              <span style={{
+                width: "10px",
+                height: "10px",
+                backgroundColor: formData.estado === "Recuperado" ? "#28a745" : formData.estado === "En Revisión" ? "#ffc107" : "#ff9800",
+                borderRadius: "50%",
+                display: "inline-block"
+              }}></span>
+              {formData.estado}
             </div>
             
-            <div style={{marginRight: "260px"}}>
-              <h2 style={{color: "#0066B2", fontSize: "16px", marginBottom: "5px", fontWeight: "bold"}}>Descripción</h2>
-              <p style={{fontSize: "14px", lineHeight: "1.5", margin: "0 0 15px 0", whiteSpace: "pre-wrap"}}>{problemaTexto}</p>
-              
-              <h2 style={{color: "#0066B2", fontSize: "16px", marginBottom: "5px", fontWeight: "bold"}}>Impacto</h2>
-              <p style={{fontSize: "14px", lineHeight: "1.5", margin: "0 0 15px 0", whiteSpace: "pre-wrap"}}>{formData.impacto || "No se ha proporcionado información sobre el impacto"}</p>
-              
-              <h2 style={{color: "#0066B2", fontSize: "16px", marginBottom: "5px", fontWeight: "bold"}}>Resolución</h2>
-              <p style={{fontSize: "14px", lineHeight: "1.5", margin: "0 0 15px 0", whiteSpace: "pre-wrap"}}>{formData.resolucion || "No se ha proporcionado información sobre la resolución"}</p>
-              
-              <h2 style={{color: "#0066B2", fontSize: "16px", marginBottom: "5px", fontWeight: "bold"}}>Nota</h2>
-              <p style={{fontSize: "14px", lineHeight: "1.5", margin: "0", whiteSpace: "pre-wrap"}}>
-                {formData.nota}
-              </p>
+            <div style={{
+              backgroundColor: "#f0f0f0",
+              color: "#0066cc",
+              padding: "8px 20px",
+              borderRadius: "20px",
+              fontSize: "14px",
+              fontWeight: "600",
+              border: "1px solid #e0e0e0"
+            }}>
+              Prioridad: {formData.prioridad}
             </div>
           </div>
           
+          {/* Campos de información */}
+          <div style={{marginRight: "280px"}}>
+            <div style={{marginBottom: "20px"}}>
+              <h2 style={{fontSize: "16px", marginBottom: "8px", fontWeight: "600", color: "#003366"}}>Descripción:</h2>
+              <p style={{fontSize: "15px", lineHeight: "1.5", margin: "0", color: "#333"}}>{descripcionTexto}</p>
+            </div>
+            
+            <div style={{marginBottom: "20px"}}>
+              {formData.estado === "En Revisión" ? (
+                <>
+                  <h2 style={{fontSize: "16px", marginBottom: "8px", fontWeight: "600", color: "#003366", display: "inline"}}>Inicio:</h2>
+                  <span style={{fontSize: "15px", color: "#333"}}> {formData.fecha || "Por definir"}, {formData.horaInicio || "Por definir"}</span>
+                </>
+              ) : (
+                <>
+                  <h2 style={{fontSize: "16px", marginBottom: "8px", fontWeight: "600", color: "#003366", display: "inline"}}>Inicio:</h2>
+                  <span style={{fontSize: "15px", color: "#333", marginRight: "20px"}}> {formData.fecha || "N/A"}, {formData.horaInicio || "N/A"}</span>
+                  
+                  <h2 style={{fontSize: "16px", marginBottom: "8px", fontWeight: "600", color: "#003366", display: "inline"}}>Fin:</h2>
+                  <span style={{fontSize: "15px", color: "#333", marginRight: "20px"}}> {formData.fecha || "N/A"}, {formData.horaFin || "N/A"}</span>
+                  
+                  <h2 style={{fontSize: "16px", marginBottom: "8px", fontWeight: "600", color: "#003366", display: "inline"}}>Duración:</h2>
+                  <span style={{fontSize: "15px", color: "#333"}}> {duracion || "N/A"}</span>
+                </>
+              )}
+            </div>
+            
+            <div style={{marginBottom: "20px"}}>
+              <h2 style={{fontSize: "16px", marginBottom: "8px", fontWeight: "600", color: "#003366"}}>Acciones de recuperación:</h2>
+              <p style={{fontSize: "15px", lineHeight: "1.5", margin: "0", color: "#333", whiteSpace: "pre-wrap"}}>{formData.resolucion || "No se han proporcionado acciones de recuperación"}</p>
+            </div>
+            
+            <div style={{marginBottom: "20px"}}>
+              <h2 style={{fontSize: "16px", marginBottom: "8px", fontWeight: "600", color: "#003366"}}>Servicios afectados:</h2>
+              {serviciosAfectados.length > 1 ? (
+                <ul style={{margin: "0", paddingLeft: "20px"}}>
+                  {serviciosAfectados.map((servicio, index) => (
+                    <li key={index} style={{fontSize: "15px", lineHeight: "1.5", color: "#333", marginBottom: "4px"}}>
+                      {servicio}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p style={{fontSize: "15px", lineHeight: "1.5", margin: "0", color: "#333"}}>
+                  {formData.impacto || "No se han identificado servicios afectados"}
+                </p>
+              )}
+            </div>
+            
+            <div>
+              <h2 style={{fontSize: "16px", marginBottom: "8px", fontWeight: "600", color: "#003366"}}>Causa raíz preliminar:</h2>
+              <p style={{fontSize: "15px", lineHeight: "1.5", margin: "0", color: "#333"}}>
+                {formData.nota || "En proceso de investigación"}
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        {/* Footer */}
+        <div style={{
+          backgroundColor: "#0066cc",
+          color: "white", 
+          padding: "20px 40px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center"
+        }}>
+          <div>
+            <p style={{margin: "0 0 4px 0", fontSize: "14px"}}>
+              <strong>Email:</strong> monitoreot@dinersclub.com.ec
+            </p>
+            <p style={{margin: 0, fontSize: "14px"}}>
+              <strong>Teléfono:</strong> (02) 298-1300 ext 4297
+            </p>
+          </div>
           <div style={{
-            background: "linear-gradient(135deg, #4a6b85 0%, #3d5a7a 30%, #2c4b73 70%, #1e3a5f 100%)",
-            color: "white", 
-            padding: "30px",
-            textAlign: "center",
-            boxShadow: "0 -4px 15px rgba(0,0,0,0.2)",
-            margin: "0 -20px -20px -20px"
+            fontSize: "18px",
+            fontWeight: "600",
+            letterSpacing: "1px"
           }}>
-            <h2 style={{
-              margin: 0,
-              fontSize: "28px",
-              fontWeight: "400",
-              letterSpacing: "2px",
-              fontFamily: "serif",
-              textShadow: "0 2px 8px rgba(0,0,0,0.4)"
-            }}>
-              {formData.empresa}
-            </h2>
+            PRODUCCIÓN Y SERVICIOS
           </div>
         </div>
       </div>
       
-      <div style={{maxWidth: "800px", margin: "40px auto 0 auto", textAlign: "center"}}>
+      <div style={{maxWidth: "900px", margin: "40px auto 0 auto", textAlign: "center"}}>
         <div style={{display: "flex", gap: "15px", justifyContent: "center"}}>
           <button 
             onClick={() => setShowForm(true)}
