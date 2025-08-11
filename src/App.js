@@ -744,6 +744,9 @@ const HerramientaIncidentes = () => {
 // ============================================
 // COMPONENTE GENERADOR DE COMUNICADOS (COMPLETO)
 // ============================================
+// ============================================
+// COMPONENTE GENERADOR DE COMUNICADOS (COMPLETO)
+// ============================================
 const GeneradorComunicados = () => {
   const [formData, setFormData] = React.useState({
     empresa: 'INTERDIN S.A.',
@@ -758,6 +761,9 @@ const GeneradorComunicados = () => {
   const [mostrarVista, setMostrarVista] = React.useState(false);
   const [jsPDFLoaded, setJsPDFLoaded] = React.useState(false);
   const [html2canvasLoaded, setHtml2canvasLoaded] = React.useState(false);
+  const [idioma, setIdioma] = React.useState('es');
+  const [traduciendo, setTraduciendo] = React.useState(false);
+  const [textoTraducido, setTextoTraducido] = React.useState(null);
 
   React.useEffect(() => {
     const script1 = document.createElement('script');
@@ -826,23 +832,40 @@ const GeneradorComunicados = () => {
     }
   };
 
-  const formatearFecha = (fecha, hora) => {
+  const formatearFecha = (fecha, hora, idiomaActual) => {
     if (!fecha || !hora) return '';
     
     const fechaObj = new Date(fecha + 'T' + hora);
-    const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-    const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
     
-    const diaSemana = dias[fechaObj.getDay()];
-    const dia = fechaObj.getDate().toString().padStart(2, '0');
-    const mes = meses[fechaObj.getMonth()];
-    const año = fechaObj.getFullYear();
-    const horas = fechaObj.getHours();
-    const minutos = fechaObj.getMinutes().toString().padStart(2, '0');
-    const ampm = horas >= 12 ? 'PM' : 'AM';
-    const hora12 = horas % 12 || 12;
-    
-    return `${diaSemana}, ${dia} de ${mes} de ${año} ${hora12.toString().padStart(2, '0')}:${minutos} ${ampm} (GMT-5)`;
+    if (idiomaActual === 'en') {
+      const diasEn = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const mesesEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      
+      const diaSemana = diasEn[fechaObj.getDay()];
+      const dia = fechaObj.getDate();
+      const mes = mesesEn[fechaObj.getMonth()];
+      const año = fechaObj.getFullYear();
+      const horas = fechaObj.getHours();
+      const minutos = fechaObj.getMinutes().toString().padStart(2, '0');
+      const ampm = horas >= 12 ? 'PM' : 'AM';
+      const hora12 = horas % 12 || 12;
+      
+      return `${diaSemana}, ${mes} ${dia}, ${año} ${hora12.toString().padStart(2, '0')}:${minutos} ${ampm} (GMT-5)`;
+    } else {
+      const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+      
+      const diaSemana = dias[fechaObj.getDay()];
+      const dia = fechaObj.getDate().toString().padStart(2, '0');
+      const mes = meses[fechaObj.getMonth()];
+      const año = fechaObj.getFullYear();
+      const horas = fechaObj.getHours();
+      const minutos = fechaObj.getMinutes().toString().padStart(2, '0');
+      const ampm = horas >= 12 ? 'PM' : 'AM';
+      const hora12 = horas % 12 || 12;
+      
+      return `${diaSemana}, ${dia} de ${mes} de ${año} ${hora12.toString().padStart(2, '0')}:${minutos} ${ampm} (GMT-5)`;
+    }
   };
 
   const calcularPeriodo = () => {
@@ -869,6 +892,64 @@ const GeneradorComunicados = () => {
     }
     
     return periodo;
+  };
+
+  const traducirTexto = async (texto) => {
+    // Simulación de traducción
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const traducciones = {
+      'Depuración semanal del Centro Autorizador (CAO)': 'Weekly Authorization Center (CAO) Maintenance',
+      'Consumos realizados en redes propias y ajenas mediante el uso de tarjetas de crédito/débito.\n\nDurante la ventana, las transacciones serán procesadas por Standin': 
+        'Transactions made in own and external networks using credit/debit cards.\n\nDuring the window, transactions will be processed by Standin'
+    };
+    
+    // Traducir periodo
+    if (texto.includes('hora') || texto.includes('minuto')) {
+      const match = texto.match(/(\d+)\s+(hora|horas|minuto|minutos)(?:\s+y\s+(\d+)\s+(minuto|minutos))?/);
+      if (match) {
+        if (match[3]) {
+          const horas = match[1];
+          const minutos = match[3];
+          return `${horas} hour${horas > 1 ? 's' : ''} and ${minutos} minute${minutos > 1 ? 's' : ''}`;
+        } else {
+          const cantidad = match[1];
+          const unidad = match[2];
+          if (unidad.includes('hora')) {
+            return `${cantidad} hour${cantidad > 1 ? 's' : ''}`;
+          } else {
+            return `${cantidad} minute${cantidad > 1 ? 's' : ''}`;
+          }
+        }
+      }
+    }
+    
+    return traducciones[texto] || texto;
+  };
+
+  const cambiarIdioma = async (nuevoIdioma) => {
+    if (nuevoIdioma === idioma) return;
+    
+    setTraduciendo(true);
+    
+    if (nuevoIdioma === 'en' && formData.actividad && formData.servicioAfectado) {
+      const [actividadTrad, servicioTrad, periodoTrad] = await Promise.all([
+        traducirTexto(formData.actividad),
+        traducirTexto(formData.servicioAfectado),
+        traducirTexto(formData.periodoAfectacion)
+      ]);
+      
+      setTextoTraducido({
+        actividad: actividadTrad,
+        servicioAfectado: servicioTrad,
+        periodoAfectacion: periodoTrad
+      });
+    } else {
+      setTextoTraducido(null);
+    }
+    
+    setIdioma(nuevoIdioma);
+    setTraduciendo(false);
   };
 
   React.useEffect(() => {
@@ -913,6 +994,8 @@ const GeneradorComunicados = () => {
       periodoAfectacion: ''
     });
     setMostrarVista(false);
+    setIdioma('es');
+    setTextoTraducido(null);
   };
 
   const cargarEjemplo = () => {
@@ -1023,9 +1106,47 @@ const GeneradorComunicados = () => {
     </div>
   );
 
-  const VistaPreviaComunicado = ({ datos }) => {
-    const fechaInicio = formatearFecha(datos.fechaInicioDate, datos.horaInicio);
-    const fechaFin = formatearFecha(datos.fechaFinDate, datos.horaFin);
+  const VistaPreviaComunicado = ({ datos, idiomaActual, textosTrad }) => {
+    const fechaInicio = formatearFecha(datos.fechaInicioDate, datos.horaInicio, idiomaActual);
+    const fechaFin = formatearFecha(datos.fechaFinDate, datos.horaFin, idiomaActual);
+    
+    const textos = idiomaActual === 'en' ? {
+      titulo: 'OFFICIAL STATEMENT',
+      empresa: datos.empresa === 'INTERDIN S.A.' ? 'INTERDIN S.A.' : 'DINERS CLUB OF ECUADOR',
+      intro: `It is reported that ${datos.empresa === 'INTERDIN S.A.' ? 'INTERDIN S.A.' : 'DINERS CLUB OF ECUADOR'} will carry out the following scheduled activity`,
+      labels: {
+        actividad: 'Activity',
+        fechaHora: ['Date and Time', 'Execution'],
+        servicio: ['Service', 'Affected'],
+        periodo: ['Period of', 'Affectation'],
+        inicio: 'Start',
+        fin: 'End'
+      },
+      monitoreo: ['Active monitoring is maintained during the activity to ensure', 'service restoration.'],
+      contacto: 'For any questions please contact Technology Monitoring',
+      correo: '02-2981-300 Ext. 4297 or email'
+    } : {
+      titulo: 'COMUNICADO OFICIAL',
+      empresa: datos.empresa,
+      intro: `Se informa que ${datos.empresa} realizará la siguiente actividad programada`,
+      labels: {
+        actividad: 'Actividad',
+        fechaHora: ['Fecha y Hora', 'Ejecución'],
+        servicio: ['Servicio', 'Afectado'],
+        periodo: ['Periodo de', 'Afectación'],
+        inicio: 'Inicio',
+        fin: 'Fin'
+      },
+      monitoreo: ['Se mantiene el monitoreo activo durante la actividad para asegurar el', 'restablecimiento del servicio.'],
+      contacto: 'Cualquier duda favor comunicarse con Monitoreo Tecnología',
+      correo: '02-2981-300 Ext. 4297 o correo'
+    };
+    
+    const contenido = textosTrad && idiomaActual === 'en' ? {
+      actividad: textosTrad.actividad || datos.actividad,
+      servicioAfectado: textosTrad.servicioAfectado || datos.servicioAfectado,
+      periodoAfectacion: textosTrad.periodoAfectacion || datos.periodoAfectacion
+    } : datos;
     
     return (
       <div style={{ 
@@ -1084,7 +1205,7 @@ const GeneradorComunicados = () => {
                   color: 'white',
                   lineHeight: '1.1',
                   textAlign: 'center'
-                }}>COMUNICADO OFICIAL</h1>
+                }}>{textos.titulo}</h1>
                 <h2 style={{ 
                   fontSize: '32px',
                   fontWeight: '400',
@@ -1094,7 +1215,7 @@ const GeneradorComunicados = () => {
                   color: 'white',
                   lineHeight: '1.1',
                   textAlign: 'center'
-                }}>{datos.empresa}</h2>
+                }}>{textos.empresa}</h2>
               </div>
               
               <div style={{
@@ -1122,7 +1243,7 @@ const GeneradorComunicados = () => {
         
         <div style={{ padding: '50px 80px' }}>
           <p style={{ fontSize: '18px', marginBottom: '40px', fontFamily: 'Arial, sans-serif' }}>
-            Se informa que {datos.empresa} realizará la siguiente actividad programada
+            {textos.intro}
           </p>
           
           <div style={{ marginBottom: '40px' }}>
@@ -1138,10 +1259,10 @@ const GeneradorComunicados = () => {
                 textAlign: 'center', 
                 fontFamily: 'Arial, sans-serif' 
               }}>
-                Actividad
+                {textos.labels.actividad}
               </div>
               <div style={{ display: 'table-cell', padding: '24px', backgroundColor: 'white', fontSize: '18px', fontFamily: 'Arial, sans-serif' }}>
-                {datos.actividad}
+                {contenido.actividad}
               </div>
             </div>
             
@@ -1159,15 +1280,15 @@ const GeneradorComunicados = () => {
                 verticalAlign: 'middle',
                 lineHeight: '1.3'
               }}>
-                <div>Fecha y Hora</div>
-                <div>Ejecución</div>
+                <div>{textos.labels.fechaHora[0]}</div>
+                <div>{textos.labels.fechaHora[1]}</div>
               </div>
               <div style={{ display: 'table-cell', padding: '24px', backgroundColor: 'white', fontSize: '18px', fontFamily: 'Arial, sans-serif' }}>
                 <div style={{ marginBottom: '8px' }}>
-                  <strong>Inicio:</strong> {fechaInicio}
+                  <strong>{textos.labels.inicio}:</strong> {fechaInicio}
                 </div>
                 <div>
-                  <strong>Fin:</strong> {fechaFin}
+                  <strong>{textos.labels.fin}:</strong> {fechaFin}
                 </div>
               </div>
             </div>
@@ -1186,11 +1307,11 @@ const GeneradorComunicados = () => {
                 verticalAlign: 'middle',
                 lineHeight: '1.3'
               }}>
-                <div>Servicio</div>
-                <div>Afectado</div>
+                <div>{textos.labels.servicio[0]}</div>
+                <div>{textos.labels.servicio[1]}</div>
               </div>
               <div style={{ display: 'table-cell', padding: '24px', backgroundColor: 'white', fontSize: '18px', fontFamily: 'Arial, sans-serif', whiteSpace: 'pre-wrap' }}>
-                {datos.servicioAfectado}
+                {contenido.servicioAfectado}
               </div>
             </div>
             
@@ -1208,23 +1329,23 @@ const GeneradorComunicados = () => {
                 verticalAlign: 'middle',
                 lineHeight: '1.3'
               }}>
-                <div>Periodo de</div>
-                <div>Afectación</div>
+                <div>{textos.labels.periodo[0]}</div>
+                <div>{textos.labels.periodo[1]}</div>
               </div>
               <div style={{ display: 'table-cell', padding: '24px', backgroundColor: 'white', fontSize: '18px', fontFamily: 'Arial, sans-serif' }}>
-                {datos.periodoAfectacion}
+                {contenido.periodoAfectacion}
               </div>
             </div>
           </div>
           
           <p style={{ fontSize: '18px', textAlign: 'center', marginBottom: '40px', fontFamily: 'Arial, sans-serif' }}>
-            Se mantiene el monitoreo activo durante la actividad para asegurar el<br/>
-            restablecimiento del servicio.
+            {textos.monitoreo[0]}<br/>
+            {textos.monitoreo[1]}
           </p>
           
           <div style={{ backgroundColor: '#f0f0f0', padding: '24px', borderRadius: '10px', textAlign: 'center', fontSize: '18px', fontFamily: 'Arial, sans-serif' }}>
-            <strong>Cualquier duda favor comunicarse con Monitoreo Tecnología</strong><br/>
-            02-2981-300 Ext. 4297 o correo <a href="mailto:monitoreot@dinersclub.com.ec" style={{ color: '#1976d2' }}>
+            <strong>{textos.contacto}</strong><br/>
+            {textos.correo} <a href="mailto:monitoreot@dinersclub.com.ec" style={{ color: '#1976d2' }}>
               monitoreot@dinersclub.com.ec
             </a>
           </div>
@@ -1236,11 +1357,56 @@ const GeneradorComunicados = () => {
   if (mostrarVista) {
     return (
       <div>
+        <div style={{ marginBottom: '20px' }}>
+          <div style={{
+            backgroundColor: '#e8f4f8',
+            padding: '10px 15px',
+            borderRadius: '4px',
+            border: '1px solid #b3e0f2',
+            maxWidth: '900px',
+            margin: '0 auto 20px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <span style={{ fontSize: '14px', color: '#0d47a1', fontWeight: '500' }}>
+              🌐 Idioma del comunicado:
+            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <select
+                value={idioma}
+                onChange={(e) => cambiarIdioma(e.target.value)}
+                disabled={traduciendo}
+                style={{
+                  padding: '6px 12px',
+                  fontSize: '14px',
+                  border: '1px solid #1976d2',
+                  borderRadius: '4px',
+                  cursor: traduciendo ? 'wait' : 'pointer',
+                  backgroundColor: 'white',
+                  color: '#1976d2',
+                  fontWeight: '500'
+                }}
+              >
+                <option value="es">🇪🇨 Español</option>
+                <option value="en">🇺🇸 English</option>
+              </select>
+              {traduciendo && (
+                <span style={{ fontSize: '12px', color: '#1976d2' }}>⏳ Traduciendo...</span>
+              )}
+            </div>
+          </div>
+        </div>
+        
         <div style={{ marginBottom: '30px', textAlign: 'center' }}>
           <h2 style={{ color: '#0f2844', fontSize: '28px', marginBottom: '20px' }}>Vista Previa del Comunicado</h2>
           <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
             <button
-              onClick={() => setMostrarVista(false)}
+              onClick={() => {
+                setMostrarVista(false);
+                setIdioma('es');
+                setTextoTraducido(null);
+              }}
               style={{ padding: '12px 20px', backgroundColor: '#666', color: 'white', border: 'none', borderRadius: '4px', fontSize: '16px', cursor: 'pointer' }}
             >
               Volver al Editor
@@ -1253,7 +1419,7 @@ const GeneradorComunicados = () => {
             </button>
           </div>
         </div>
-        <VistaPreviaComunicado datos={formData} />
+        <VistaPreviaComunicado datos={formData} idiomaActual={idioma} textosTrad={textoTraducido} />
       </div>
     );
   }
