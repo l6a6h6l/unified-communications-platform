@@ -1,18 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
+// ============================================
+// COMPONENTE DE HERRAMIENTA DE INCIDENTES
+// ============================================
 const HerramientaIncidentes = () => {
-  const [showForm, setShowForm] = useState(true);
-  const [jsPDFLoaded, setJsPDFLoaded] = useState(false);
-  const [html2canvasLoaded, setHtml2canvasLoaded] = useState(false);
+  const [showForm, setShowForm] = React.useState(true);
+  const [jsPDFLoaded, setJsPDFLoaded] = React.useState(false);
+  const [html2canvasLoaded, setHtml2canvasLoaded] = React.useState(false);
   
-  useEffect(() => {
-    // Cargar jsPDF
+  React.useEffect(() => {
     const script1 = document.createElement('script');
     script1.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
     script1.onload = () => setJsPDFLoaded(true);
     document.head.appendChild(script1);
     
-    // Cargar html2canvas (necesario para jsPDF)
     const script2 = document.createElement('script');
     script2.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
     script2.onload = () => setHtml2canvasLoaded(true);
@@ -23,7 +24,8 @@ const HerramientaIncidentes = () => {
       if (document.head.contains(script2)) document.head.removeChild(script2);
     };
   }, []);
-  const [formData, setFormData] = useState({
+
+  const [formData, setFormData] = React.useState({
     estado: 'En Revision',
     prioridad: 'P2',
     fechaInicio: '',
@@ -42,7 +44,7 @@ const HerramientaIncidentes = () => {
     empresa: 'Diners Club'
   });
 
-  const [calculadora, setCalculadora] = useState({
+  const [calculadora, setCalculadora] = React.useState({
     mostrar: false,
     afectacion: 0,
     impactoUsuarios: 1,
@@ -123,14 +125,12 @@ const HerramientaIncidentes = () => {
         return;
       }
 
-      // Generar canvas con html2canvas
       const canvas = await window.html2canvas(elemento, {
         scale: 2,
-        backgroundColor: '#ffffff',
+        backgroundColor: '#f0f4f8',
         logging: false
       });
 
-      // Crear PDF
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({
         orientation: 'portrait',
@@ -138,13 +138,11 @@ const HerramientaIncidentes = () => {
         format: 'a4'
       });
 
-      // Calcular dimensiones para centrar la imagen en el PDF
-      const imgWidth = 190; // Ancho en mm (con márgenes)
+      const imgWidth = 190;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      const xPosition = 10; // Margen izquierdo
-      const yPosition = 10; // Margen superior
+      const xPosition = 10;
+      const yPosition = 10;
 
-      // Agregar la imagen al PDF
       pdf.addImage(
         canvas.toDataURL('image/png'),
         'PNG',
@@ -154,7 +152,6 @@ const HerramientaIncidentes = () => {
         imgHeight
       );
 
-      // Descargar el PDF
       const filename = `comunicado_${formData.estado.replace(' ', '_')}_${new Date().toISOString().slice(0,10)}.pdf`;
       pdf.save(filename);
       
@@ -162,6 +159,107 @@ const HerramientaIncidentes = () => {
     } catch (error) {
       console.error('Error:', error);
       alert('❌ Error al generar el PDF. Intenta de nuevo.');
+    }
+  };
+
+  const renderVistaPrevia = () => {
+    switch (formData.estado) {
+      case 'En Revision':
+        return (
+          <>
+            <div>
+              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366' }}>Inicio: </span>
+              <span style={{ fontSize: '16px', color: '#333' }}>{formData.fechaInicio}, {formData.horaInicio}</span>
+            </div>
+            <div>
+              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366' }}>Situación actual:</span>
+              <br />
+              <span style={{ fontSize: '16px', color: '#333' }}>
+                {formData.situacionActual || 'Detallar el estado en donde se encuentra la revisión (Relevante).'}
+              </span>
+            </div>
+            <div>
+              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366' }}>Servicios afectados:</span>
+              <br />
+              <span style={{ fontSize: '16px', color: '#333' }}>
+                {formData.serviciosAfectados || 'Se detalla los servicios que se encuentran impactados.'}
+              </span>
+            </div>
+          </>
+        );
+
+      case 'Recuperado':
+        return (
+          <>
+            <div>
+              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366' }}>Inicio: </span>
+              <span style={{ fontSize: '16px', color: '#333' }}>{formData.fechaInicio}, {formData.horaInicio}</span>
+              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366', marginLeft: '20px' }}>Fin: </span>
+              <span style={{ fontSize: '16px', color: '#333' }}>{formData.fechaFin}, {formData.horaFin}</span>
+              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366', marginLeft: '20px' }}>Duración: </span>
+              <span style={{ fontSize: '16px', color: '#333' }}>{calcularDuracion() || 'N/A'}</span>
+            </div>
+            <div>
+              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366' }}>Acciones de recuperación:</span>
+              <br />
+              <span style={{ fontSize: '16px', color: '#333', whiteSpace: 'pre-wrap' }}>
+                {formData.accionesRecuperacion || 'Detallar la acción que permitió la recuperación del servicio.'}
+              </span>
+            </div>
+            <div>
+              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366' }}>Servicios afectados:</span>
+              <br />
+              <span style={{ fontSize: '16px', color: '#333' }}>
+                {formData.serviciosAfectados || 'Se detalla los servicios que se encuentran impactados.'}
+              </span>
+            </div>
+            <div>
+              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366' }}>Causa raíz preliminar:</span>
+              <br />
+              <span style={{ fontSize: '16px', color: '#333' }}>
+                {formData.causaRaiz || 'Detallar el motivo de la afectación al servicio.'}
+              </span>
+            </div>
+          </>
+        );
+
+      case 'Detalle Incidentes':
+        return (
+          <>
+            <div>
+              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366' }}>Inicio: </span>
+              <span style={{ fontSize: '16px', color: '#333' }}>{formData.fechaInicio}, {formData.horaInicio}</span>
+              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366', marginLeft: '20px' }}>Fin: </span>
+              <span style={{ fontSize: '16px', color: '#333' }}>{formData.fechaFin}, {formData.horaFin}</span>
+              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366', marginLeft: '20px' }}>Duración: </span>
+              <span style={{ fontSize: '16px', color: '#333' }}>{calcularDuracion() || 'N/A'}</span>
+            </div>
+            <div>
+              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366' }}>Causa raíz:</span>
+              <br />
+              <span style={{ fontSize: '16px', color: '#333' }}>
+                {formData.causaRaiz || 'Origen de la afectación al servicio.'}
+              </span>
+            </div>
+            <div>
+              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366' }}>Solución definitiva:</span>
+              <br />
+              <span style={{ fontSize: '16px', color: '#333' }}>
+                <strong>1.</strong> {formData.solucionDefinitiva || 'Detallar la acción ejecutada para su solución.'}
+              </span>
+              <br />
+              <span style={{ fontSize: '16px', color: '#333', marginTop: '10px', display: 'block' }}>
+                <strong>Responsable:</strong> {formData.responsable || 'Nombre área interna / externa.'}
+              </span>
+              <span style={{ fontSize: '16px', color: '#333', marginTop: '5px', display: 'block' }}>
+                <strong>Ejecutado:</strong> {formData.fechaEjecucion || 'dd/mm/aaaa'}, {formData.horaEjecucion || 'hh:mm'}
+              </span>
+            </div>
+          </>
+        );
+
+      default:
+        return null;
     }
   };
 
@@ -533,110 +631,9 @@ const HerramientaIncidentes = () => {
     );
   }
 
-  const renderVistaPrevia = () => {
-    switch (formData.estado) {
-      case 'En Revision':
-        return (
-          <>
-            <div>
-              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366' }}>Inicio: </span>
-              <span style={{ fontSize: '16px', color: '#333' }}>{formData.fechaInicio}, {formData.horaInicio}</span>
-            </div>
-            <div>
-              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366' }}>Situación actual:</span>
-              <br />
-              <span style={{ fontSize: '16px', color: '#333' }}>
-                {formData.situacionActual || 'Detallar el estado en donde se encuentra la revisión (Relevante).'}
-              </span>
-            </div>
-            <div>
-              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366' }}>Servicios afectados:</span>
-              <br />
-              <span style={{ fontSize: '16px', color: '#333' }}>
-                {formData.serviciosAfectados || 'Se detalla los servicios que se encuentran impactados.'}
-              </span>
-            </div>
-          </>
-        );
-
-      case 'Recuperado':
-        return (
-          <>
-            <div>
-              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366' }}>Inicio: </span>
-              <span style={{ fontSize: '16px', color: '#333' }}>{formData.fechaInicio}, {formData.horaInicio}</span>
-              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366', marginLeft: '20px' }}>Fin: </span>
-              <span style={{ fontSize: '16px', color: '#333' }}>{formData.fechaFin}, {formData.horaFin}</span>
-              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366', marginLeft: '20px' }}>Duración: </span>
-              <span style={{ fontSize: '16px', color: '#333' }}>{calcularDuracion() || 'N/A'}</span>
-            </div>
-            <div>
-              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366' }}>Acciones de recuperación:</span>
-              <br />
-              <span style={{ fontSize: '16px', color: '#333', whiteSpace: 'pre-wrap' }}>
-                {formData.accionesRecuperacion || 'Detallar la acción que permitió la recuperación del servicio.'}
-              </span>
-            </div>
-            <div>
-              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366' }}>Servicios afectados:</span>
-              <br />
-              <span style={{ fontSize: '16px', color: '#333' }}>
-                {formData.serviciosAfectados || 'Se detalla los servicios que se encuentran impactados.'}
-              </span>
-            </div>
-            <div>
-              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366' }}>Causa raíz preliminar:</span>
-              <br />
-              <span style={{ fontSize: '16px', color: '#333' }}>
-                {formData.causaRaiz || 'Detallar el motivo de la afectación al servicio, en el caso de que se deba indagar más en la causa se colocará "Continúa la revisión para determinar la causa raíz"'}
-              </span>
-            </div>
-          </>
-        );
-
-      case 'Detalle Incidentes':
-        return (
-          <>
-            <div>
-              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366' }}>Inicio: </span>
-              <span style={{ fontSize: '16px', color: '#333' }}>{formData.fechaInicio}, {formData.horaInicio}</span>
-              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366', marginLeft: '20px' }}>Fin: </span>
-              <span style={{ fontSize: '16px', color: '#333' }}>{formData.fechaFin}, {formData.horaFin}</span>
-              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366', marginLeft: '20px' }}>Duración: </span>
-              <span style={{ fontSize: '16px', color: '#333' }}>{calcularDuracion() || 'N/A'}</span>
-            </div>
-            <div>
-              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366' }}>Causa raíz:</span>
-              <br />
-              <span style={{ fontSize: '16px', color: '#333' }}>
-                {formData.causaRaiz || 'Origen de la afectación al servicio.'}
-              </span>
-            </div>
-            <div>
-              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#003366' }}>Solución definitiva:</span>
-              <br />
-              <span style={{ fontSize: '16px', color: '#333' }}>
-                <strong>1.</strong> {formData.solucionDefinitiva || 'Detallar la acción ejecutada para su solución.'}
-              </span>
-              <br />
-              <span style={{ fontSize: '16px', color: '#333', marginTop: '10px', display: 'block' }}>
-                <strong>Responsable:</strong> {formData.responsable || 'Nombre área interna / externa.'}
-              </span>
-              <span style={{ fontSize: '16px', color: '#333', marginTop: '5px', display: 'block' }}>
-                <strong>Ejecutado:</strong> {formData.fechaEjecucion || 'dd/mm/aaaa'}, {formData.horaEjecucion || 'hh:mm'}
-              </span>
-            </div>
-          </>
-        );
-
-      default:
-        return null;
-    }
-  };
-
   return (
     <div>
-      <div style={{ maxWidth: '900px', margin: '0 auto', backgroundColor: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }} data-communication="preview">
+      <div style={{ maxWidth: '900px', margin: '0 auto', backgroundColor: '#f0f4f8', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }} data-communication="preview">
         <div style={{ backgroundColor: '#0066cc', color: 'white', padding: '15px 30px', textAlign: 'center' }}>
           <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '600', letterSpacing: '1px', fontFamily: 'Arial, sans-serif' }}>
             GESTIÓN DE INCIDENTES
@@ -647,9 +644,9 @@ const HerramientaIncidentes = () => {
           <div style={{ position: 'absolute', top: '30px', right: '40px', display: 'flex', gap: '15px', zIndex: 10, alignItems: 'center' }}>
             {formData.estado !== 'Detalle Incidentes' && (
               <div style={{
-                backgroundColor: '#ffffff',
+                backgroundColor: '#f0f4f8',
                 color: formData.estado === 'Recuperado' ? '#28a745' : formData.estado === 'En Revision' ? '#ff6b35' : '#333',
-                padding: '6px 12px',
+                padding: '8px 16px',
                 borderRadius: '20px',
                 fontSize: '15px',
                 fontWeight: '600',
@@ -659,13 +656,13 @@ const HerramientaIncidentes = () => {
                 lineHeight: '1',
                 whiteSpace: 'nowrap'
               }}>
-                <span style={{ fontSize: '12px', verticalAlign: 'middle' }}>●</span>
-                <span style={{ marginLeft: '6px', verticalAlign: 'middle' }}>{formData.estado}</span>
+                <span style={{ fontSize: '15px', verticalAlign: 'middle', lineHeight: '1' }}>●</span>
+                <span style={{ marginLeft: '8px', verticalAlign: 'middle', fontSize: '15px', lineHeight: '1' }}>{formData.estado}</span>
               </div>
             )}
 
             <div style={{
-              backgroundColor: '#ffffff',
+              backgroundColor: '#f0f4f8',
               color: '#0066cc',
               padding: '6px 12px',
               borderRadius: '20px',
@@ -744,4 +741,911 @@ const HerramientaIncidentes = () => {
   );
 };
 
-export default HerramientaIncidentes;
+// ============================================
+// COMPONENTE GENERADOR DE COMUNICADOS (COMPLETO)
+// ============================================
+const GeneradorComunicados = () => {
+  const [formData, setFormData] = React.useState({
+    empresa: 'INTERDIN S.A.',
+    actividad: '',
+    fechaInicioDate: '',
+    horaInicio: '',
+    fechaFinDate: '',
+    horaFin: '',
+    servicioAfectado: '',
+    periodoAfectacion: ''
+  });
+  const [mostrarVista, setMostrarVista] = React.useState(false);
+  const [jsPDFLoaded, setJsPDFLoaded] = React.useState(false);
+  const [html2canvasLoaded, setHtml2canvasLoaded] = React.useState(false);
+
+  React.useEffect(() => {
+    const script1 = document.createElement('script');
+    script1.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    script1.onload = () => setJsPDFLoaded(true);
+    document.head.appendChild(script1);
+    
+    const script2 = document.createElement('script');
+    script2.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    script2.onload = () => setHtml2canvasLoaded(true);
+    document.head.appendChild(script2);
+    
+    return () => {
+      if (document.head.contains(script1)) document.head.removeChild(script1);
+      if (document.head.contains(script2)) document.head.removeChild(script2);
+    };
+  }, []);
+
+  const exportarPDF = async () => {
+    if (!jsPDFLoaded || !html2canvasLoaded || !window.jspdf || !window.html2canvas) {
+      alert('⏳ Por favor espera mientras se cargan los recursos necesarios...');
+      return;
+    }
+    
+    try {
+      const elemento = document.querySelector('[data-comunicado="preview"]');
+      if (!elemento) {
+        alert('No se pudo encontrar el comunicado');
+        return;
+      }
+
+      const canvas = await window.html2canvas(elemento, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        logging: false
+      });
+
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const imgWidth = 190;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const xPosition = 10;
+      const yPosition = 10;
+
+      pdf.addImage(
+        canvas.toDataURL('image/png'),
+        'PNG',
+        xPosition,
+        yPosition,
+        imgWidth,
+        imgHeight
+      );
+
+      const filename = `comunicado_oficial_${formData.empresa.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.pdf`;
+      pdf.save(filename);
+      
+      alert('✅ PDF descargado exitosamente!');
+    } catch (error) {
+      console.error('Error:', error);
+      alert('❌ Error al generar el PDF. Intenta de nuevo.');
+    }
+  };
+
+  const formatearFecha = (fecha, hora) => {
+    if (!fecha || !hora) return '';
+    
+    const fechaObj = new Date(fecha + 'T' + hora);
+    const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    
+    const diaSemana = dias[fechaObj.getDay()];
+    const dia = fechaObj.getDate().toString().padStart(2, '0');
+    const mes = meses[fechaObj.getMonth()];
+    const año = fechaObj.getFullYear();
+    const horas = fechaObj.getHours();
+    const minutos = fechaObj.getMinutes().toString().padStart(2, '0');
+    const ampm = horas >= 12 ? 'PM' : 'AM';
+    const hora12 = horas % 12 || 12;
+    
+    return `${diaSemana}, ${dia} de ${mes} de ${año} ${hora12.toString().padStart(2, '0')}:${minutos} ${ampm} (GMT-5)`;
+  };
+
+  const calcularPeriodo = () => {
+    if (!formData.fechaInicioDate || !formData.horaInicio || !formData.fechaFinDate || !formData.horaFin) return '';
+    
+    const inicio = new Date(formData.fechaInicioDate + 'T' + formData.horaInicio);
+    const fin = new Date(formData.fechaFinDate + 'T' + formData.horaFin);
+    const diferencia = fin - inicio;
+    
+    if (diferencia <= 0) return '';
+    
+    const minutos = Math.floor(diferencia / 60000);
+    const horas = Math.floor(minutos / 60);
+    const minutosRestantes = minutos % 60;
+    
+    let periodo = '';
+    if (horas > 0) {
+      periodo = horas + (horas === 1 ? ' hora' : ' horas');
+      if (minutosRestantes > 0) {
+        periodo += ' y ' + minutosRestantes + (minutosRestantes === 1 ? ' minuto' : ' minutos');
+      }
+    } else {
+      periodo = minutos + (minutos === 1 ? ' minuto' : ' minutos');
+    }
+    
+    return periodo;
+  };
+
+  React.useEffect(() => {
+    const periodo = calcularPeriodo();
+    if (periodo) {
+      setFormData(prev => ({ ...prev, periodoAfectacion: periodo }));
+    }
+  }, [formData.fechaInicioDate, formData.horaInicio, formData.fechaFinDate, formData.horaFin]);
+
+  const updateField = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const generarComunicado = () => {
+    const camposRequeridos = ['actividad', 'fechaInicioDate', 'horaInicio', 'fechaFinDate', 'horaFin', 'servicioAfectado', 'periodoAfectacion'];
+    
+    if (!camposRequeridos.every(campo => formData[campo])) {
+      alert('Por favor, complete todos los campos antes de generar el comunicado');
+      return;
+    }
+    
+    const inicio = new Date(formData.fechaInicioDate + 'T' + formData.horaInicio);
+    const fin = new Date(formData.fechaFinDate + 'T' + formData.horaFin);
+    
+    if (fin <= inicio) {
+      alert('La fecha y hora de fin debe ser posterior a la fecha y hora de inicio');
+      return;
+    }
+    
+    setMostrarVista(true);
+  };
+
+  const limpiarFormulario = () => {
+    setFormData({
+      empresa: 'INTERDIN S.A.',
+      actividad: '',
+      fechaInicioDate: '',
+      horaInicio: '',
+      fechaFinDate: '',
+      horaFin: '',
+      servicioAfectado: '',
+      periodoAfectacion: ''
+    });
+    setMostrarVista(false);
+  };
+
+  const cargarEjemplo = () => {
+    setFormData({
+      empresa: 'INTERDIN S.A.',
+      actividad: 'Depuración semanal del Centro Autorizador (CAO)',
+      fechaInicioDate: '2025-06-09',
+      horaInicio: '02:00',
+      fechaFinDate: '2025-06-09',
+      horaFin: '02:45',
+      servicioAfectado: 'Consumos realizados en redes propias y ajenas mediante el uso de tarjetas de crédito/débito.\n\nDurante la ventana, las transacciones serán procesadas por Standin',
+      periodoAfectacion: '45 minutos'
+    });
+  };
+
+  const LogoDiners = () => (
+    <div style={{
+      width: '68px',
+      height: '54px',
+      position: 'relative',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}>
+      <div style={{
+        width: '68px',
+        height: '52px',
+        position: 'relative',
+        borderRadius: '26px',
+        overflow: 'hidden',
+        backgroundColor: 'white',
+        border: '2px solid white'
+      }}>
+        <div style={{
+          position: 'absolute',
+          left: '0',
+          top: '0',
+          width: '50%',
+          height: '100%',
+          backgroundColor: '#4db8db'
+        }}></div>
+        <div style={{
+          position: 'absolute',
+          right: '0',
+          top: '0',
+          width: '50%',
+          height: '100%',
+          backgroundColor: '#004976'
+        }}></div>
+        <div style={{
+          position: 'absolute',
+          top: '10%',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '14px',
+          height: '80%',
+          backgroundColor: 'white',
+          borderRadius: '7px'
+        }}></div>
+      </div>
+    </div>
+  );
+
+  const LogoInterdin = () => (
+    <div style={{ 
+      display: 'flex',
+      alignItems: 'center',
+      height: '48px',
+      border: '2.5px solid white',
+      borderRadius: '5px',
+      overflow: 'hidden',
+      backgroundColor: 'white'
+    }}>
+      <div style={{ 
+        backgroundColor: '#1b3a5e',
+        color: '#ffffff',
+        padding: '0 16px',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center'
+      }}>
+        <span style={{ 
+          fontWeight: 'bold',
+          fontSize: '23px',
+          fontFamily: 'Arial, sans-serif',
+          letterSpacing: '2.5px'
+        }}>
+          INTER
+        </span>
+      </div>
+      <div style={{ 
+        backgroundColor: '#e60000',
+        color: '#ffffff',
+        padding: '0 16px',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center'
+      }}>
+        <span style={{ 
+          fontWeight: 'bold',
+          fontSize: '23px',
+          fontFamily: 'Arial, sans-serif',
+          letterSpacing: '2.5px'
+        }}>
+          DIN
+        </span>
+      </div>
+    </div>
+  );
+
+  const VistaPreviaComunicado = ({ datos }) => {
+    const fechaInicio = formatearFecha(datos.fechaInicioDate, datos.horaInicio);
+    const fechaFin = formatearFecha(datos.fechaFinDate, datos.horaFin);
+    
+    return (
+      <div style={{ 
+        backgroundColor: 'white',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+        width: '900px',
+        margin: '0 auto'
+      }} data-comunicado="preview">
+        <div style={{ 
+          backgroundColor: '#0d2844',
+          position: 'relative',
+          paddingTop: '20px',
+          paddingBottom: '30px'
+        }}>
+          <div style={{
+            height: '150px',
+            position: 'relative'
+          }}>
+            <div style={{
+              position: 'absolute',
+              top: '20px',
+              left: '40px',
+              right: '40px',
+              height: '2px',
+              backgroundColor: 'white'
+            }}></div>
+            
+            <div style={{
+              position: 'absolute',
+              bottom: '20px',
+              left: '40px',
+              right: '40px',
+              height: '2px',
+              backgroundColor: 'white'
+            }}></div>
+            
+            <div style={{
+              display: 'flex',
+              height: '100%',
+              position: 'relative'
+            }}>
+              <div style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                padding: '35px 50px'
+              }}>
+                <h1 style={{ 
+                  fontSize: '42px',
+                  fontWeight: '700',
+                  letterSpacing: '2px',
+                  fontFamily: 'Arial, sans-serif',
+                  margin: '0',
+                  color: 'white',
+                  lineHeight: '1.1',
+                  textAlign: 'center'
+                }}>COMUNICADO OFICIAL</h1>
+                <h2 style={{ 
+                  fontSize: '32px',
+                  fontWeight: '400',
+                  letterSpacing: '1px',
+                  fontFamily: 'Arial, sans-serif',
+                  margin: '6px 0 0 0',
+                  color: 'white',
+                  lineHeight: '1.1',
+                  textAlign: 'center'
+                }}>{datos.empresa}</h2>
+              </div>
+              
+              <div style={{
+                width: '2px',
+                backgroundColor: 'white',
+                position: 'absolute',
+                top: '22px',
+                bottom: '22px',
+                right: '280px',
+                zIndex: 1
+              }}></div>
+              
+              <div style={{
+                width: '280px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '35px 40px'
+              }}>
+                {datos.empresa === 'INTERDIN S.A.' ? <LogoInterdin /> : <LogoDiners />}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div style={{ padding: '50px 80px' }}>
+          <p style={{ fontSize: '18px', marginBottom: '40px', fontFamily: 'Arial, sans-serif' }}>
+            Se informa que {datos.empresa} realizará la siguiente actividad programada
+          </p>
+          
+          <div style={{ marginBottom: '40px' }}>
+            <div style={{ display: 'table', width: '100%', marginBottom: '12px', border: '1px solid #ddd' }}>
+              <div style={{ 
+                display: 'table-cell', 
+                backgroundColor: '#1976d2', 
+                color: 'white', 
+                padding: '24px', 
+                fontSize: '20px', 
+                fontWeight: 'bold', 
+                width: '320px', 
+                textAlign: 'center', 
+                fontFamily: 'Arial, sans-serif' 
+              }}>
+                Actividad
+              </div>
+              <div style={{ display: 'table-cell', padding: '24px', backgroundColor: 'white', fontSize: '18px', fontFamily: 'Arial, sans-serif' }}>
+                {datos.actividad}
+              </div>
+            </div>
+            
+            <div style={{ display: 'table', width: '100%', marginBottom: '12px', border: '1px solid #ddd' }}>
+              <div style={{ 
+                display: 'table-cell', 
+                backgroundColor: '#1976d2', 
+                color: 'white', 
+                padding: '24px', 
+                fontSize: '20px', 
+                fontWeight: 'bold', 
+                width: '320px', 
+                textAlign: 'center', 
+                fontFamily: 'Arial, sans-serif', 
+                verticalAlign: 'middle',
+                lineHeight: '1.3'
+              }}>
+                <div>Fecha y Hora</div>
+                <div>Ejecución</div>
+              </div>
+              <div style={{ display: 'table-cell', padding: '24px', backgroundColor: 'white', fontSize: '18px', fontFamily: 'Arial, sans-serif' }}>
+                <div style={{ marginBottom: '8px' }}>
+                  <strong>Inicio:</strong> {fechaInicio}
+                </div>
+                <div>
+                  <strong>Fin:</strong> {fechaFin}
+                </div>
+              </div>
+            </div>
+            
+            <div style={{ display: 'table', width: '100%', marginBottom: '12px', border: '1px solid #ddd' }}>
+              <div style={{ 
+                display: 'table-cell', 
+                backgroundColor: '#1976d2', 
+                color: 'white', 
+                padding: '24px', 
+                fontSize: '20px', 
+                fontWeight: 'bold', 
+                width: '320px', 
+                textAlign: 'center', 
+                fontFamily: 'Arial, sans-serif', 
+                verticalAlign: 'middle',
+                lineHeight: '1.3'
+              }}>
+                <div>Servicio</div>
+                <div>Afectado</div>
+              </div>
+              <div style={{ display: 'table-cell', padding: '24px', backgroundColor: 'white', fontSize: '18px', fontFamily: 'Arial, sans-serif', whiteSpace: 'pre-wrap' }}>
+                {datos.servicioAfectado}
+              </div>
+            </div>
+            
+            <div style={{ display: 'table', width: '100%', border: '1px solid #ddd' }}>
+              <div style={{ 
+                display: 'table-cell', 
+                backgroundColor: '#1976d2', 
+                color: 'white', 
+                padding: '24px', 
+                fontSize: '20px', 
+                fontWeight: 'bold', 
+                width: '320px', 
+                textAlign: 'center', 
+                fontFamily: 'Arial, sans-serif', 
+                verticalAlign: 'middle',
+                lineHeight: '1.3'
+              }}>
+                <div>Periodo de</div>
+                <div>Afectación</div>
+              </div>
+              <div style={{ display: 'table-cell', padding: '24px', backgroundColor: 'white', fontSize: '18px', fontFamily: 'Arial, sans-serif' }}>
+                {datos.periodoAfectacion}
+              </div>
+            </div>
+          </div>
+          
+          <p style={{ fontSize: '18px', textAlign: 'center', marginBottom: '40px', fontFamily: 'Arial, sans-serif' }}>
+            Se mantiene el monitoreo activo durante la actividad para asegurar el<br/>
+            restablecimiento del servicio.
+          </p>
+          
+          <div style={{ backgroundColor: '#f0f0f0', padding: '24px', borderRadius: '10px', textAlign: 'center', fontSize: '18px', fontFamily: 'Arial, sans-serif' }}>
+            <strong>Cualquier duda favor comunicarse con Monitoreo Tecnología</strong><br/>
+            02-2981-300 Ext. 4297 o correo <a href="mailto:monitoreot@dinersclub.com.ec" style={{ color: '#1976d2' }}>
+              monitoreot@dinersclub.com.ec
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  if (mostrarVista) {
+    return (
+      <div>
+        <div style={{ marginBottom: '30px', textAlign: 'center' }}>
+          <h2 style={{ color: '#0f2844', fontSize: '28px', marginBottom: '20px' }}>Vista Previa del Comunicado</h2>
+          <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
+            <button
+              onClick={() => setMostrarVista(false)}
+              style={{ padding: '12px 20px', backgroundColor: '#666', color: 'white', border: 'none', borderRadius: '4px', fontSize: '16px', cursor: 'pointer' }}
+            >
+              Volver al Editor
+            </button>
+            <button
+              onClick={exportarPDF}
+              style={{ padding: '12px 20px', backgroundColor: '#d32f2f', color: 'white', border: 'none', borderRadius: '4px', fontSize: '16px', cursor: 'pointer', fontWeight: 'bold' }}
+            >
+              📄 Exportar PDF
+            </button>
+          </div>
+        </div>
+        <VistaPreviaComunicado datos={formData} />
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ maxWidth: '600px', margin: '0 auto', backgroundColor: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+      <h2 style={{ marginBottom: '30px', color: '#333', textAlign: 'center' }}>Generador de Comunicados Oficiales</h2>
+      
+      <div style={{ backgroundColor: '#e3f2fd', padding: '10px', borderRadius: '4px', marginBottom: '20px', fontSize: '13px', color: '#1565c0' }}>
+        ℹ️ Todas las fechas y horas se mostrarán en formato GMT-5 (Ecuador)
+      </div>
+      
+      <div style={{ marginBottom: '20px' }}>
+        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Empresa:</label>
+        <select 
+          value={formData.empresa} 
+          onChange={(e) => updateField('empresa', e.target.value)}
+          style={{ width: '100%', padding: '8px', fontSize: '14px', border: '1px solid #ddd', borderRadius: '4px' }}
+        >
+          <option value="INTERDIN S.A.">INTERDIN S.A.</option>
+          <option value="DINERS CLUB DEL ECUADOR">DINERS CLUB DEL ECUADOR</option>
+        </select>
+      </div>
+      
+      <div style={{ marginBottom: '20px' }}>
+        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Actividad:</label>
+        <textarea
+          value={formData.actividad}
+          onChange={(e) => updateField('actividad', e.target.value)}
+          placeholder="Ej: Depuración semanal del Centro Autorizador (CAO)"
+          style={{ width: '100%', padding: '8px', fontSize: '14px', border: '1px solid #ddd', borderRadius: '4px', minHeight: '80px', resize: 'vertical' }}
+        />
+      </div>
+      
+      <div style={{ marginBottom: '20px' }}>
+        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Fecha y Hora de Inicio:</label>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <input
+            type="date"
+            value={formData.fechaInicioDate}
+            onChange={(e) => updateField('fechaInicioDate', e.target.value)}
+            style={{ flex: 1, padding: '8px', fontSize: '14px', border: '1px solid #ddd', borderRadius: '4px' }}
+          />
+          <input
+            type="time"
+            value={formData.horaInicio}
+            onChange={(e) => updateField('horaInicio', e.target.value)}
+            style={{ flex: 1, padding: '8px', fontSize: '14px', border: '1px solid #ddd', borderRadius: '4px' }}
+          />
+        </div>
+        {formData.fechaInicioDate && formData.horaInicio && (
+          <div style={{ marginTop: '5px', fontSize: '12px', color: '#666' }}>
+            Vista previa: {formatearFecha(formData.fechaInicioDate, formData.horaInicio)}
+          </div>
+        )}
+      </div>
+      
+      <div style={{ marginBottom: '20px' }}>
+        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Fecha y Hora de Fin:</label>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <input
+            type="date"
+            value={formData.fechaFinDate}
+            onChange={(e) => updateField('fechaFinDate', e.target.value)}
+            style={{ flex: 1, padding: '8px', fontSize: '14px', border: '1px solid #ddd', borderRadius: '4px' }}
+          />
+          <input
+            type="time"
+            value={formData.horaFin}
+            onChange={(e) => updateField('horaFin', e.target.value)}
+            style={{ flex: 1, padding: '8px', fontSize: '14px', border: '1px solid #ddd', borderRadius: '4px' }}
+          />
+        </div>
+        {formData.fechaFinDate && formData.horaFin && (
+          <div style={{ marginTop: '5px', fontSize: '12px', color: '#666' }}>
+            Vista previa: {formatearFecha(formData.fechaFinDate, formData.horaFin)}
+          </div>
+        )}
+      </div>
+      
+      <div style={{ marginBottom: '20px' }}>
+        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Servicio Afectado:</label>
+        <textarea
+          value={formData.servicioAfectado}
+          onChange={(e) => updateField('servicioAfectado', e.target.value)}
+          placeholder="Describa los servicios que se verán afectados..."
+          style={{ width: '100%', padding: '8px', fontSize: '14px', border: '1px solid #ddd', borderRadius: '4px', minHeight: '120px', resize: 'vertical' }}
+        />
+      </div>
+      
+      <div style={{ marginBottom: '20px' }}>
+        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Periodo de Afectación:</label>
+        <input
+          type="text"
+          value={formData.periodoAfectacion}
+          onChange={(e) => updateField('periodoAfectacion', e.target.value)}
+          placeholder="Se calcula automáticamente o ingrese manualmente"
+          style={{ width: '100%', padding: '8px', fontSize: '14px', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: formData.periodoAfectacion && formData.fechaInicioDate && formData.fechaFinDate ? '#f0f7ff' : 'white' }}
+        />
+        {formData.fechaInicioDate && formData.horaInicio && formData.fechaFinDate && formData.horaFin && (
+          <div style={{ marginTop: '5px', fontSize: '12px', color: '#1976d2' }}>
+            ⏱️ Calculado automáticamente (puede editarlo si lo desea)
+          </div>
+        )}
+      </div>
+      
+      <div style={{ display: 'flex', gap: '15px', marginTop: '30px' }}>
+        <button
+          onClick={generarComunicado}
+          style={{ flex: 1, padding: '12px', backgroundColor: '#1976d2', color: 'white', border: 'none', borderRadius: '4px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}
+        >
+          Generar Comunicado
+        </button>
+        <button
+          onClick={limpiarFormulario}
+          style={{ padding: '12px 20px', backgroundColor: '#666', color: 'white', border: 'none', borderRadius: '4px', fontSize: '16px', cursor: 'pointer' }}
+        >
+          Limpiar
+        </button>
+      </div>
+      
+      <button
+        onClick={cargarEjemplo}
+        style={{ width: '100%', marginTop: '10px', padding: '10px', backgroundColor: '#f0f0f0', color: '#333', border: '1px solid #ddd', borderRadius: '4px', fontSize: '14px', cursor: 'pointer' }}
+      >
+        📝 Cargar Ejemplo
+      </button>
+    </div>
+  );
+};
+
+// ============================================
+// COMPONENTE PRINCIPAL CON LOGIN Y PANEL
+// ============================================
+const CommandCenter = () => {
+  const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+  const [username, setUsername] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [loginError, setLoginError] = React.useState('');
+  const [activeTab, setActiveTab] = React.useState('incidentes');
+
+  const handleLogin = () => {
+    if (username === 'gestores' && password === 'interdin2025') {
+      setIsAuthenticated(true);
+      setLoginError('');
+    } else {
+      setLoginError('Usuario o contraseña incorrectos');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setUsername('');
+    setPassword('');
+    setLoginError('');
+    setActiveTab('incidentes');
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        backgroundColor: '#1a2332',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontFamily: 'Arial, sans-serif'
+      }}>
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '8px',
+          padding: '40px',
+          width: '400px',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+        }}>
+          <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+            <h1 style={{
+              fontSize: '28px',
+              color: '#0d2844',
+              marginBottom: '10px'
+            }}>
+              DINERS CLUB
+            </h1>
+            <h2 style={{
+              fontSize: '20px',
+              color: '#1976d2',
+              fontWeight: 'normal'
+            }}>
+              COMMAND CENTER
+            </h2>
+          </div>
+          
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            handleLogin();
+          }}>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{
+                display: 'block',
+                marginBottom: '5px',
+                color: '#333',
+                fontSize: '14px'
+              }}>
+                Usuario
+              </label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Ingrese su usuario"
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  fontSize: '14px'
+                }}
+              />
+            </div>
+            
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{
+                display: 'block',
+                marginBottom: '5px',
+                color: '#333',
+                fontSize: '14px'
+              }}>
+                Contraseña
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Ingrese su contraseña"
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  fontSize: '14px'
+                }}
+              />
+            </div>
+            
+            {loginError && (
+              <div style={{
+                backgroundColor: '#f8d7da',
+                color: '#721c24',
+                padding: '10px',
+                borderRadius: '4px',
+                marginBottom: '20px',
+                fontSize: '14px'
+              }}>
+                {loginError}
+              </div>
+            )}
+            
+            <button
+              type="button"
+              onClick={handleLogin}
+              style={{
+                width: '100%',
+                padding: '12px',
+                backgroundColor: '#1976d2',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                fontSize: '16px',
+                cursor: 'pointer'
+              }}
+            >
+              Iniciar Sesión
+            </button>
+          </form>
+          
+          <div style={{
+            marginTop: '30px',
+            paddingTop: '20px',
+            borderTop: '1px solid #e0e0e0',
+            textAlign: 'center',
+            fontSize: '12px',
+            color: '#666'
+          }}>
+            <div>Diseñado por <strong>Luis Alberto Herrera Lara</strong></div>
+            <div>Lanzado el 10 de agosto del 2025</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      backgroundColor: '#f5f5f5',
+      fontFamily: 'Arial, sans-serif'
+    }}>
+      <div style={{
+        backgroundColor: '#0d2844',
+        color: 'white',
+        padding: '15px 30px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        <div>
+          <h1 style={{ margin: 0, fontSize: '24px' }}>COMMAND CENTER</h1>
+          <p style={{ margin: 0, fontSize: '12px', opacity: 0.8 }}>
+            Sistema de Gestión de Comunicados
+          </p>
+        </div>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <span style={{ fontSize: '14px' }}>
+            Usuario: <strong>gestores</strong>
+          </span>
+          <button
+            onClick={handleLogout}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: 'transparent',
+              border: '1px solid white',
+              borderRadius: '4px',
+              color: 'white',
+              cursor: 'pointer',
+              fontSize: '14px'
+            }}
+          >
+            Cerrar Sesión
+          </button>
+        </div>
+      </div>
+      
+      <div style={{
+        backgroundColor: 'white',
+        borderBottom: '1px solid #ddd',
+        padding: '0 30px'
+      }}>
+        <div style={{ display: 'flex' }}>
+          <button
+            onClick={() => setActiveTab('incidentes')}
+            style={{
+              padding: '15px 25px',
+              backgroundColor: activeTab === 'incidentes' ? '#f5f5f5' : 'white',
+              border: 'none',
+              borderBottom: activeTab === 'incidentes' ? '3px solid #1976d2' : 'none',
+              cursor: 'pointer',
+              fontSize: '15px',
+              color: activeTab === 'incidentes' ? '#1976d2' : '#666'
+            }}
+          >
+            🚨 Gestión de Incidentes
+          </button>
+          <button
+            onClick={() => setActiveTab('comunicados')}
+            style={{
+              padding: '15px 25px',
+              backgroundColor: activeTab === 'comunicados' ? '#f5f5f5' : 'white',
+              border: 'none',
+              borderBottom: activeTab === 'comunicados' ? '3px solid #1976d2' : 'none',
+              cursor: 'pointer',
+              fontSize: '15px',
+              color: activeTab === 'comunicados' ? '#1976d2' : '#666'
+            }}
+          >
+            📋 Comunicados Oficiales
+          </button>
+        </div>
+      </div>
+      
+      <div style={{ padding: '30px', paddingBottom: '100px' }}>
+        {activeTab === 'incidentes' ? <HerramientaIncidentes /> : <GeneradorComunicados />}
+      </div>
+      
+      <div style={{
+        backgroundColor: '#0d2844',
+        color: 'white',
+        padding: '20px',
+        textAlign: 'center',
+        fontSize: '12px',
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0
+      }}>
+        <div>Command Center © 2025 - Diners Club del Ecuador</div>
+        <div style={{ marginTop: '5px', opacity: 0.8 }}>
+          Desarrollado por Luis Alberto Herrera Lara | Lanzado el 10 de agosto del 2025
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CommandCenter;
