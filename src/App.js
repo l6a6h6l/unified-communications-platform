@@ -2514,7 +2514,7 @@ const GeneradorComunicados = () => {
   );
 };
 
-export default GeneradorComunicados;
+
 // ============================================
 // COMPONENTE PRINCIPAL CON LOGIN Y PANEL
 // ============================================
