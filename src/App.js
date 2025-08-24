@@ -634,10 +634,106 @@ const HerramientaIncidentes = () => {
   return (
     <div>
       <div style={{ maxWidth: '900px', margin: '0 auto', backgroundColor: '#f0f4f8', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }} data-communication="preview">
-        <div style={{ backgroundColor: '#0066cc', color: 'white', padding: '15px 30px', textAlign: 'center' }}>
-          <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '600', letterSpacing: '1px', fontFamily: 'Arial, sans-serif' }}>
+        <div style={{ backgroundColor: '#0066cc', color: 'white', padding: '12px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h1 style={{ margin: 0, fontSize: '28px', fontWeight: '600', letterSpacing: '1px', fontFamily: 'Arial, sans-serif' }}>
             GESTIÓN DE INCIDENTES
           </h1>
+          
+          {/* Logo según empresa seleccionada */}
+          {formData.empresa === 'Diners Club' ? (
+            // Logo Diners
+            <div style={{
+              width: '50px',
+              height: '40px',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{
+                width: '50px',
+                height: '38px',
+                position: 'relative',
+                borderRadius: '19px',
+                overflow: 'hidden',
+                backgroundColor: 'white',
+                border: '2px solid white'
+              }}>
+                <div style={{
+                  position: 'absolute',
+                  left: '0',
+                  top: '0',
+                  width: '50%',
+                  height: '100%',
+                  backgroundColor: '#4db8db'
+                }}></div>
+                <div style={{
+                  position: 'absolute',
+                  right: '0',
+                  top: '0',
+                  width: '50%',
+                  height: '100%',
+                  backgroundColor: '#004976'
+                }}></div>
+                <div style={{
+                  position: 'absolute',
+                  top: '10%',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '10px',
+                  height: '80%',
+                  backgroundColor: 'white',
+                  borderRadius: '5px'
+                }}></div>
+              </div>
+            </div>
+          ) : (
+            // Logo Interdin
+            <div style={{ 
+              display: 'flex',
+              alignItems: 'center',
+              height: '35px',
+              border: '2px solid white',
+              borderRadius: '4px',
+              overflow: 'hidden',
+              backgroundColor: 'white'
+            }}>
+              <div style={{ 
+                backgroundColor: '#1b3a5e',
+                color: '#ffffff',
+                padding: '0 10px',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                <span style={{ 
+                  fontWeight: 'bold',
+                  fontSize: '16px',
+                  fontFamily: 'Arial, sans-serif',
+                  letterSpacing: '1.5px'
+                }}>
+                  INTER
+                </span>
+              </div>
+              <div style={{ 
+                backgroundColor: '#e60000',
+                color: '#ffffff',
+                padding: '0 10px',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                <span style={{ 
+                  fontWeight: 'bold',
+                  fontSize: '16px',
+                  fontFamily: 'Arial, sans-serif',
+                  letterSpacing: '1.5px'
+                }}>
+                  DIN
+                </span>
+              </div>
+            </div>
+          )}
         </div>
 
         <div style={{ padding: '30px 40px', position: 'relative', minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
@@ -664,7 +760,7 @@ const HerramientaIncidentes = () => {
             <div style={{
               backgroundColor: '#f0f4f8',
               color: '#0066cc',
-              padding: '6px 12px',
+              padding: '8px 16px',
               borderRadius: '20px',
               fontSize: '15px',
               fontWeight: '600',
